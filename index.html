@@ -2052,4 +2052,18 @@ document.addEventListener('change', function(e) {
 </script>
 
 </body>
+<script>
+    // Inisialisasi Lucide Icons
+    lucide.createIcons();
+
+    // Pendaftaran Service Worker agar PWA bisa di-install dengan benar
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker terdaftar:', reg.scope))
+                .catch(err => console.log('Service Worker gagal:', err));
+        });
+    }
+</script>
+</html>	
 </html>
