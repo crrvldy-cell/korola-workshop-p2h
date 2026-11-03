@@ -1,6 +1,6 @@
 {
-  "name": "My Fleet Cws",
-  "short_name": "FleetCws",
+  "name": "P2H KRLW Online",
+  "short_name": "KrlwP2H",
   "description": "Monitoring System Fleet",
   "start_url": "index.html",
   "display": "standalone",
