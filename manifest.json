@@ -2,10 +2,12 @@
   "name": "P2H KRLW Online",
   "short_name": "KrlwP2H",
   "description": "Monitoring System Fleet",
-  "start_url": "index.html",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "orientation": "landscape",
+  "background_color": "#071426",
+  "theme_color": "#071426",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png",
