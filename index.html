@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2H Monitoring Dashboard - Korola Workshop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: { colors: { brand: { 50: '#f0fdf4', 500: '#22c55e', 600: '#16a34a' } } }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .matrix-table th, .matrix-table td { border: 1px solid #334155; text-align: center; font-size: 11px; }
+        .bg-y { background-color: #16a34a; color: white; font-weight: bold; }
+        .bg-b { background-color: #dc2626; color: white; font-weight: bold; }
+        .bg-s { background-color: #0284c7; color: white; font-weight: bold; }
+        .bg-t { background-color: #334155; color: #cbd5e1; font-weight: bold; }
+        .bg-l { background: repeating-linear-gradient(45deg, #7f1d1d, #7f1d1d 5px, #991b1b 5px, #991b1b 10px); color: white; font-weight: bold; }
+    </style>
+
+
+
+<style>
+/* =====================================================
+   KOROLA WORKSHOP — CORPORATE THEME
+   Mode terang + mode malam
+   ===================================================== */
+
+/* 1. WARNA DASAR */
+:root {
+    color-scheme: light;
+
+    --kw-bg: #f4f7fb;
+    --kw-panel: #ffffff;
+    --kw-panel-2: #eef3f8;
+    --kw-input: #ffffff;
+    --kw-border: #dbe4ee;
+    --kw-text: #172b45;
+    --kw-muted: #64748b;
+    --kw-green: #059669;
+    --kw-green-hover: #047857;
+    --kw-shadow: 0 4px 18px rgba(15, 35, 60, .06);
+    --kw-table-head: #edf3f8;
+    --kw-table-cell: #ffffff;
+    --kw-hover: #f0f7f5;
+    --kw-scroll-track: #edf2f7;
+    --kw-scroll-thumb: #b8c7d8;
+}
+
+html.dark {
+    color-scheme: dark;
+
+    --kw-bg: #071426;
+    --kw-panel: #0d1b30;
+    --kw-panel-2: #122640;
+    --kw-input: #142944;
+    --kw-border: #29415e;
+    --kw-text: #edf5ff;
+    --kw-muted: #9cb2cc;
+    --kw-green: #00d99a;
+    --kw-green-hover: #00b982;
+    --kw-shadow: 0 8px 24px rgba(0, 0, 0, .16);
+    --kw-table-head: #142b47;
+    --kw-table-cell: #142943;
+    --kw-hover: #203c5a;
+    --kw-scroll-track: #0b1a2e;
+    --kw-scroll-thumb: #355577;
+}
+
+/* 2. GLOBAL */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--kw-bg);
+    color: var(--kw-text);
+    transition: background-color .2s ease, color .2s ease;
+}
+
+html.dark body {
+    background: var(--kw-bg) !important;
+    color: var(--kw-text);
+}
+
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+select,
+textarea {
+    color: var(--kw-text);
+    border-color: var(--kw-border);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--kw-muted);
+    opacity: .8;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid color-mix(in srgb, var(--kw-green) 30%, transparent);
+    outline-offset: 1px;
+}
+
+button {
+    transition: background-color .18s ease,
+                border-color .18s ease,
+                color .18s ease,
+                box-shadow .18s ease;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: .65;
+}
+
+::selection {
+    background: var(--kw-green);
+    color: #ffffff;
+}
+
+/* 3. SCROLLBAR */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--kw-scroll-thumb) var(--kw-scroll-track);
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--kw-scroll-track);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--kw-scroll-thumb);
+    border-radius: 20px;
+}
+
+/* 4. SIDEBAR */
+#app-sidebar {
+    flex-shrink: 0;
+    background: var(--kw-panel) !important;
+    border-right: 1px solid var(--kw-border) !important;
+    color: var(--kw-text);
+}
+
+html.dark #app-sidebar {
+    background: linear-gradient(180deg, #102844, #08172b) !important;
+    box-shadow: 8px 0 28px rgba(0, 0, 0, .16);
+}
+
+#app-sidebar > div:first-child {
+    border-bottom: 1px solid var(--kw-border) !important;
+    padding-top: 14px;
+    padding-bottom: 18px;
+}
+
+#app-sidebar nav button {
+    min-height: 44px;
+    border-radius: 9px;
+    color: var(--kw-muted);
+}
+
+#app-sidebar nav button:hover {
+    background: var(--kw-panel-2) !important;
+    color: var(--kw-text) !important;
+}
+
+#app-sidebar nav button.bg-brand-500\/10 {
+    background: #e0f7ee !important;
+    color: #047857 !important;
+}
+
+html.dark #app-sidebar nav button.bg-brand-500\/10 {
+    background: linear-gradient(100deg, #00b98b, #087b70) !important;
+    color: #ffffff !important;
+    box-shadow: 0 5px 18px rgba(0, 217, 154, .12);
+}
+
+#app-sidebar nav button.bg-brand-500\/10 i {
+    color: inherit !important;
+}
+
+/* 5. DASHBOARD HEADER */
+#sec-dashboard > div:first-child {
+    background: linear-gradient(120deg, #ffffff, #edf6f4) !important;
+    border: 1px solid var(--kw-border) !important;
+    border-radius: 13px;
+    padding: 22px;
+    box-shadow: var(--kw-shadow);
+}
+
+html.dark #sec-dashboard > div:first-child {
+    background:
+        radial-gradient(ellipse at top right, rgba(24, 83, 130, .35), transparent 55%),
+        linear-gradient(120deg, #0d1d33, #081426) !important;
+    border-color: #203b59 !important;
+}
+
+#sec-dashboard > div:first-child h2 {
+    color: var(--kw-muted) !important;
+    letter-spacing: .06em;
+}
+
+#sec-dashboard > div:first-child h1 {
+    color: var(--kw-text) !important;
+    letter-spacing: -.025em;
+}
+
+#sec-dashboard select,
+#sec-dashboard input:not([type="checkbox"]):not([type="radio"]) {
+    background-color: var(--kw-input) !important;
+    border-color: var(--kw-border) !important;
+    color: var(--kw-text) !important;
+    border-radius: 9px;
+    min-height: 38px;
+}
+
+html.dark #sec-dashboard select,
+html.dark #sec-dashboard input {
+    background-color: var(--kw-input) !important;
+    color: var(--kw-text) !important;
+}
+
+/* 6. PANEL DASHBOARD */
+#sec-dashboard .xl\:col-span-3 {
+    background: var(--kw-panel) !important;
+    border-color: var(--kw-border) !important;
+    border-radius: 13px;
+    padding: 10px;
+    box-shadow: var(--kw-shadow);
+}
+
+html.dark #sec-dashboard .xl\:col-span-3 {
+    background: linear-gradient(145deg, #0d1c31, #09172a) !important;
+    border-color: #24405f !important;
+}
+
+/* 7. TABEL MATRIKS */
+.matrix-table {
+    border-collapse: separate !important;
+    border-spacing: 1px;
+    color: var(--kw-text);
+}
+
+.matrix-table th,
+.matrix-table td {
+    border: 1px solid var(--kw-border) !important;
+    text-align: center;
+    font-size: 11px;
+    height: 31px;
+}
+
+.matrix-table thead th {
+    background: var(--kw-table-head) !important;
+    color: var(--kw-text) !important;
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.matrix-table th:nth-child(2),
+.matrix-table td:nth-child(2) {
+    min-width: 145px;
+}
+
+.matrix-table tbody td {
+    background: var(--kw-table-cell);
+    color: var(--kw-text);
+}
+
+.matrix-table tbody tr:hover td:not(.bg-y):not(.bg-b):not(.bg-s):not(.bg-l) {
+    background: var(--kw-hover);
+}
+
+/* Status matriks: warna tetap pada kedua tema */
+.matrix-table .bg-y,
+.bg-y {
+    background: #0c9c65 !important;
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+.matrix-table .bg-b,
+.bg-b {
+    background: #dc303b !important;
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+.matrix-table .bg-s,
+.bg-s {
+    background: #079ed1 !important;
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+.matrix-table .bg-t,
+.bg-t {
+    background: #334155 !important;
+    color: #e2e8f0 !important;
+    font-weight: 700;
+}
+
+.matrix-table .bg-l,
+.bg-l {
+    background: repeating-linear-gradient(
+        45deg,
+        #711d32,
+        #711d32 5px,
+        #90213a 5px,
+        #90213a 10px
+    ) !important;
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+/* 8. PANEL STATISTIK KANAN */
+#sec-dashboard .space-y-4 > div {
+    background: var(--kw-panel) !important;
+    border-color: var(--kw-border) !important;
+    border-radius: 13px;
+    box-shadow: var(--kw-shadow);
+}
+
+html.dark #sec-dashboard .space-y-4 > div {
+    background: linear-gradient(145deg, #10243d, #0b1a2e) !important;
+    border-color: #294563 !important;
+}
+
+#sec-dashboard .space-y-4 h3 {
+    color: var(--kw-text) !important;
+    border-bottom-color: var(--kw-border) !important;
+}
+
+#sec-dashboard #scheduler-percentage {
+    color: var(--kw-green) !important;
+    font-size: 46px;
+}
+
+#sec-dashboard .bg-sky-500 {
+    background: linear-gradient(90deg, #087f8c, #06b6a0) !important;
+}
+
+#sec-dashboard .bg-slate-200 {
+    background-color: var(--kw-panel-2) !important;
+}
+
+/* 9. FORM P2H DAN REKAP */
+#sec-form > form > div,
+#sec-rekap .bg-white {
+    background: var(--kw-panel) !important;
+    color: var(--kw-text);
+    border-color: var(--kw-border) !important;
+    border-radius: 13px;
+    box-shadow: var(--kw-shadow);
+}
+
+html.dark #sec-form > form > div,
+html.dark #sec-rekap .bg-white {
+    background: var(--kw-panel) !important;
+    color: var(--kw-text) !important;
+    border-color: var(--kw-border) !important;
+}
+
+#sec-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+#sec-form textarea,
+#sec-form select,
+#sec-rekap input,
+#sec-rekap select {
+    background: var(--kw-input);
+    color: var(--kw-text);
+    border-color: var(--kw-border);
+}
+
+#sec-rekap thead {
+    background: var(--kw-table-head) !important;
+    color: var(--kw-text);
+}
+
+#sec-rekap tbody tr:hover {
+    background: var(--kw-hover) !important;
+}
+
+/* 10. CHECKLIST P2H TAMBAHAN */
+#checklist-p2h-tambahan .p2h-row {
+    display: grid;
+    grid-template-columns: minmax(125px, 1fr) 105px minmax(220px, 1.7fr);
+    gap: 10px;
+    align-items: center;
+    padding: 9px 10px;
+    border: 1px solid var(--kw-border);
+    border-radius: 10px;
+    background: var(--kw-panel-2);
+    color: var(--kw-text);
+}
+
+#checklist-p2h-tambahan .p2h-item-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--kw-text);
+}
+
+#checklist-p2h-tambahan .p2h-status-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+#checklist-p2h-tambahan .status-box {
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+    background: var(--kw-input);
+    color: var(--kw-text);
+    border-color: var(--kw-border);
+}
+
+#checklist-p2h-tambahan .status-box.status-baik {
+    background: #16a34a !important;
+    color: #ffffff !important;
+    border-color: #15803d !important;
+}
+
+#checklist-p2h-tambahan .status-box.status-rusak {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+    border-color: #b91c1c !important;
+}
+
+#checklist-p2h-tambahan .p2h-keterangan {
+    width: 100%;
+    min-width: 0;
+    background: var(--kw-input);
+    border: 1px solid var(--kw-border);
+    border-radius: 8px;
+    padding: 9px;
+    font-size: 11px;
+    color: var(--kw-text);
+}
+
+/* 11. LOGIN */
+#login-screen {
+    background: radial-gradient(ellipse at top, #e1f4ee 0%, #f4f7fb 65%) !important;
+}
+
+#login-screen > div {
+    background: var(--kw-panel) !important;
+    color: var(--kw-text);
+    border-color: var(--kw-border) !important;
+    box-shadow: var(--kw-shadow);
+}
+
+html.dark #login-screen {
+    background: radial-gradient(ellipse at top, #173b5b 0%, #071426 65%) !important;
+}
+
+html.dark #login-screen > div {
+    background: var(--kw-panel) !important;
+    border-color: var(--kw-border) !important;
+}
+
+/* 12. LAYOUT DAN SCROLL */
+html,
+body {
+    height: 100%;
+    min-height: 0;
+}
+
+body {
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+}
+
+#app-sidebar {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+body > .flex-1 {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+}
+
+body > .flex-1 > main {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+}
+
+#sec-dashboard:not(.hidden) {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+}
+
+#sec-dashboard > div:first-child {
+    flex-shrink: 0;
+}
+
+#sec-dashboard > .grid {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#sec-dashboard > .grid > .xl\:col-span-3 {
+    min-height: 0;
+    height: 100%;
+    overflow: auto;
+}
+
+#sec-dashboard > .grid > .space-y-4 {
+    min-height: 0;
+    overflow-y: auto;
+}
+
+#sec-form,
+#sec-rekap {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 12px;
+}
+
+/* 13. RESPONSIVE */
+@media (max-width: 1100px) {
+    #sec-dashboard > div:first-child > div:last-child {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 640px) {
+    #sec-dashboard > div:first-child {
+        padding: 14px;
+    }
+
+    #sec-dashboard > div:first-child > div:last-child {
+        width: 100%;
+        align-items: stretch;
+    }
+
+    #sec-dashboard > div:first-child > div:last-child > div {
+        min-width: 100%;
+    }
+
+    #filter-unit,
+    #filter-month,
+    #filter-estate {
+        width: 100%;
+    }
+
+    #checklist-p2h-tambahan .p2h-row {
+        grid-template-columns: minmax(0, 1fr) 95px;
+        gap: 8px;
+    }
+
+    #checklist-p2h-tambahan .p2h-keterangan {
+        grid-column: 1 / -1;
+    }
+
+    body > .flex-1 > main {
+        padding: 10px;
+        gap: 10px;
+    }
+}
+
+@media (max-height: 700px) {
+    body > .flex-1 > main {
+        padding: 10px;
+    }
+
+    #sec-dashboard > div:first-child {
+        padding: 12px;
+    }
+
+    .matrix-table th,
+    .matrix-table td {
+        height: 27px;
+    }
+}
+
+
+/* PREMIUM THEME — DASHBOARD KPI */
+#sec-kpi {
+    color: #F1F5F9;
+}
+
+/* Kartu utama */
+#sec-kpi > div,
+#sec-kpi .bg-white {
+    background: linear-gradient(145deg, #142238 0%, #0F1A2D 100%) !important;
+    border-color: #293951 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Kartu donut per estate */
+#sec-kpi .bg-slate-50 {
+    background: linear-gradient(145deg, #1B2B42, #152238) !important;
+}
+
+/* Judul */
+#sec-kpi h1,
+#sec-kpi h3,
+#sec-kpi h4 {
+    color: #F8FAFC !important;
+}
+
+/* Deskripsi dan label */
+#sec-kpi p,
+#sec-kpi .text-slate-500,
+#sec-kpi .text-slate-400 {
+    color: #9AAAC0 !important;
+}
+
+/* Angka KPI */
+#kpi-p2h {
+    color: #34D399 !important;
+}
+
+#kpi-tidak-p2h {
+    color: #F0BD61 !important;
+}
+
+#kpi-breakdown {
+    color: #FB7185 !important;
+}
+
+#kpi-standby {
+    color: #38BDF8 !important;
+}
+
+/* Angka persentase donut */
+#sec-kpi [id^="pct-"] {
+    color: #F0BD61 !important;
+}
+
+
+/* =====================================================
+   PREMIUM DASHBOARD — inspired by Korola reference
+   ===================================================== */
+.kpi-premium { color:#eef5ff; }
+.kpi-hero { position:relative; isolation:isolate; overflow:hidden; min-height:145px; padding:26px 28px; display:flex; align-items:center; justify-content:space-between; gap:20px; border:1px solid #1c4776; border-radius:20px; background:radial-gradient(ellipse at 78% 10%,rgba(22,112,197,.34),transparent 38%),radial-gradient(ellipse at 100% 100%,rgba(0,207,255,.11),transparent 35%),linear-gradient(115deg,#0d1d38 0%,#07152b 58%,#0b2342 100%); box-shadow:0 14px 35px rgba(0,0,0,.2); }
+.kpi-hero:after { content:""; position:absolute; z-index:-1; width:340px; height:200px; right:10%; top:-115px; border:1px solid rgba(51,161,255,.26); border-radius:50%; box-shadow:0 0 0 24px rgba(34,139,230,.035),0 0 0 52px rgba(34,139,230,.025); transform:rotate(-13deg); }
+.kpi-hero-glow { position:absolute; z-index:-1; width:250px; height:130px; right:8%; bottom:-95px; background:#0876e8; filter:blur(80px); opacity:.25; }
+.kpi-eyebrow { margin:0 0 9px; color:#54b9ff; font-size:10px; font-weight:800; letter-spacing:.2em; }
+.kpi-hero h1 { color:#f8fbff!important; font-size:clamp(24px,2.2vw,34px); line-height:1.15; font-weight:800; letter-spacing:-.04em; }
+.kpi-subtitle { margin-top:8px; color:#a8bdd8!important; font-size:12px; }
+.kpi-date-chip { display:flex; align-items:center; gap:9px; flex-shrink:0; padding:11px 15px; border:1px solid #315780; border-radius:999px; background:rgba(3,17,38,.68); color:#e6f2ff; font-size:11px; font-weight:700; }
+.kpi-date-chip svg { color:#56b7ff; }
+.kpi-stat-card { min-height:126px; display:flex; align-items:center; gap:16px; padding:20px; border-radius:17px; border:1px solid rgba(92,151,211,.25); box-shadow:0 12px 25px rgba(0,0,0,.13); overflow:hidden; position:relative; }
+.kpi-stat-card:after { content:""; position:absolute; width:100px; height:100px; right:-34px; top:-38px; border-radius:50%; background:rgba(255,255,255,.055); }
+.stat-green { background:linear-gradient(135deg,#064f4b,#092b3a 95%); border-color:#087e76; }
+.stat-blue { background:linear-gradient(135deg,#104d91,#0b2344 95%); border-color:#176fc4; }
+.stat-amber { background:linear-gradient(135deg,#66451e,#2b2630 95%); border-color:#99702f; }
+.stat-purple { background:linear-gradient(135deg,#49357f,#171f40 95%); border-color:#7355bd; }
+.kpi-stat-icon { width:58px; height:58px; flex-shrink:0; display:grid; place-items:center; border-radius:17px; background:rgba(255,255,255,.11); color:#fff; }
+.kpi-stat-icon svg { width:30px; height:30px; stroke-width:2.5; }
+.stat-green .kpi-stat-icon { background:#0cc98c; } .stat-blue .kpi-stat-icon { background:#1678e8; } .stat-amber .kpi-stat-icon { background:#e8a83b; } .stat-purple .kpi-stat-icon { background:#8759ec; }
+.kpi-stat-content { min-width:0; position:relative; z-index:1; }
+.kpi-stat-content p { margin:0; color:#d4e3f6!important; font-size:12px; font-weight:600; }
+.kpi-stat-content h2 { margin:4px 0 3px; color:#fff!important; font-size:31px; line-height:1.05; font-weight:800; letter-spacing:-.04em; }
+.kpi-stat-content span { color:#9cb5d2; font-size:10px; }
+.kpi-panel { min-width:0; padding:20px; border:1px solid #203f66; border-radius:18px; background:linear-gradient(145deg,#0d1d36,#08162b); box-shadow:0 12px 30px rgba(0,0,0,.16); }
+.kpi-panel-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+.kpi-panel-heading > div { display:flex; align-items:center; gap:11px; }
+.kpi-heading-icon { width:37px; height:37px; display:grid; place-items:center; border-radius:11px; color:#4ab5ff; background:rgba(22,125,231,.15); }
+.kpi-heading-icon svg { width:21px; height:21px; }
+.kpi-panel-heading h3 { color:#f4f8ff!important; font-size:14px; font-weight:800; }
+.kpi-panel-heading p { margin-top:3px; color:#8fa8c7!important; font-size:10px; }
+.kpi-live-dot { padding:6px 9px; border:1px solid rgba(0,217,154,.22); border-radius:999px; color:#4ee4b5; background:rgba(0,217,154,.07); font-size:8px; font-weight:800; letter-spacing:.1em; }
+.kpi-estate-card { min-width:0; padding:15px; border:1px solid #1d3a5d; border-radius:15px; background:linear-gradient(145deg,#102541,#0b1b31); }
+.kpi-estate-top { display:flex; align-items:center; gap:8px; }
+.kpi-estate-top h4 { color:#f1f7ff!important; font-size:12px; font-weight:800; letter-spacing:.04em; }
+.kpi-estate-bullet { width:8px; height:8px; border-radius:50%; background:#13dba0; box-shadow:0 0 12px rgba(19,219,160,.55); }
+.kpi-estate-caption { margin-left:auto; color:#86a2c3; font-size:9px; font-weight:700; letter-spacing:.1em; }
+.kpi-donut-wrap { width:132px; height:132px; max-width:100%; margin:10px auto 0; position:relative; }
+.kpi-donut-wrap canvas { width:100%!important; height:100%!important; }
+.kpi-donut-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; }
+.kpi-donut-center strong { color:#f7fbff; font-size:25px; font-weight:800; letter-spacing:-.04em; }
+.kpi-donut-center span { margin-top:2px; color:#89a5c6; font-size:8px; font-weight:800; letter-spacing:.13em; }
+.kpi-trend-chart { min-height:265px; position:relative; }
+.kpi-trend-chart > div { height:265px!important; }
+.kpi-trend-chart canvas { max-width:100%; }
+.kpi-trend-chart p { color:#91a9c6!important; }
+.kpi-legend { display:flex; flex-wrap:wrap; gap:18px; padding-top:12px; border-top:1px solid #1d3553; color:#a9bdd6; font-size:10px; }
+.kpi-legend span { display:flex; align-items:center; gap:7px; }
+.legend-dot { width:8px; height:8px; display:inline-block; border-radius:50%; }
+.legend-gold { background:#2de2a5; } .legend-muted { background:#35516f; }
+.kpi-note { display:flex; align-items:flex-start; gap:8px; margin-top:15px; padding:11px; border:1px solid #1d3b5d; border-radius:10px; background:rgba(17,44,74,.55); color:#91abc9; font-size:10px; }
+.kpi-note svg { flex-shrink:0; color:#4bb7ff; }
+#app-sidebar { background:linear-gradient(180deg,#0d203b,#07152b)!important; border-right-color:#203e63!important; }
+#app-sidebar > div:first-child { border-bottom-color:#244361!important; }
+#app-sidebar nav button { min-height:46px; border-radius:11px; color:#b1c5df; }
+#app-sidebar nav button:hover { background:rgba(30,112,191,.18)!important; color:#fff!important; }
+#app-sidebar nav button.bg-brand-500\/10 { background:linear-gradient(100deg,#0878f9,#0753c8)!important; color:#fff!important; box-shadow:0 0 0 1px rgba(75,166,255,.7),0 0 20px rgba(0,116,255,.35); }
+#app-sidebar nav button.bg-brand-500\/10 i { color:#fff!important; }
+@media (max-width: 768px) { .kpi-hero { align-items:flex-start; flex-direction:column; padding:22px; } .kpi-date-chip { align-self:flex-start; } .kpi-stat-card { min-height:108px; padding:15px; } .kpi-panel { padding:15px; } }
+
+
+/* MOBILE LAYOUT PATCH */
+@media (max-width: 767px) {
+    body { overflow: hidden !important; }
+    body > .flex-1 { width: 100%; height: 100dvh; min-height: 0; overflow: hidden; }
+    body > .flex-1 > main {
+        height: 100%; min-height: 0; overflow-y: auto !important; overflow-x: hidden;
+        display: block; padding: 66px 12px 18px !important; -webkit-overflow-scrolling: touch;
+    }
+    #app-sidebar {
+        display: flex !important; position: fixed !important; z-index: 40;
+        left: 0; top: 0; bottom: 0; width: min(82vw, 290px) !important;
+        height: 100dvh !important; max-height: 100dvh; overflow-y: auto;
+        transform: translateX(-110%); transition: transform .24s ease;
+        box-shadow: 16px 0 40px rgba(0,0,0,.35); padding-top: 18px;
+    }
+    body.mobile-nav-open #app-sidebar { transform: translateX(0); }
+    #mobile-nav-backdrop { display: none; }
+    body.mobile-nav-open #mobile-nav-backdrop { display: block; }
+    #sec-kpi:not(.hidden), #sec-dashboard:not(.hidden), #sec-form:not(.hidden),
+    #sec-rekap:not(.hidden), #sec-unit-rekap:not(.hidden) {
+        display: flex; flex-direction: column; gap: 14px; min-height: min-content;
+        overflow: visible; padding-bottom: 18px;
+    }
+    #sec-kpi .kpi-hero { padding: 18px; gap: 14px; }
+    #sec-kpi .kpi-hero h1 { font-size: 25px; line-height: 1.2; }
+    #sec-kpi .kpi-date-chip { max-width: 100%; white-space: normal; }
+    #sec-kpi .kpi-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    #sec-kpi .kpi-stat-card { min-height: 112px; padding: 12px; gap: 10px; }
+    #sec-kpi .kpi-stat-icon { width: 38px; height: 38px; border-radius: 12px; }
+    #sec-kpi .kpi-stat-icon svg { width: 21px; height: 21px; }
+    #sec-kpi .kpi-stat-content h2 { font-size: 24px; }
+    #sec-kpi .kpi-stat-content p { font-size: 10px; }
+    #sec-kpi .kpi-main-grid { display: grid; grid-template-columns: minmax(0, 1fr); }
+    #sec-kpi .kpi-panel { min-width: 0; padding: 13px; }
+    #sec-kpi .kpi-panel-heading { align-items: flex-start; flex-wrap: wrap; }
+    #sec-kpi .kpi-estate-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+    #sec-kpi .kpi-estate-card { padding: 10px; }
+    #sec-kpi .kpi-donut-wrap { width: 108px; height: 108px; }
+    #sec-kpi .kpi-trend-chart, #sec-kpi .kpi-trend-chart > div { min-height: 220px; height: 220px !important; }
+    #sec-dashboard > div:first-child { gap: 14px; }
+    #sec-dashboard > div:first-child > div:last-child { width: 100%; flex-direction: column; align-items: stretch; }
+    #sec-dashboard > div:first-child > div:last-child > div { min-width: 0; width: 100%; }
+    #sec-dashboard > .grid { display: block; overflow: visible; }
+    #sec-dashboard > .grid > .xl\:col-span-3 { height: auto; max-width: 100%; overflow-x: auto; margin-bottom: 14px; }
+    #sec-dashboard > .grid > .space-y-4 { overflow: visible; }
+    #sec-form, #sec-rekap, #sec-unit-rekap { overflow: visible; }
+    #checklist-p2h-tambahan .p2h-row { grid-template-columns: minmax(0, 1fr) 92px; }
+}
+@media (max-width: 380px) {
+    #sec-kpi .kpi-stat-card { align-items: flex-start; flex-direction: column; }
+    #sec-kpi .kpi-estate-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+
+/* USER BACKGROUND IMAGE — Korola Workshop */
+body {
+    background-color: #061329 !important;
+    background-image: linear-gradient(rgba(3, 10, 25, .48), rgba(3, 10, 25, .68)), url("./bg-dashboard.png") !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    background-attachment: fixed !important;
+}
+html.dark body {
+    background-color: #061329 !important;
+    background-image: linear-gradient(rgba(3, 10, 25, .48), rgba(3, 10, 25, .68)), url("./bg-dashboard.png") !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    background-attachment: fixed !important;
+}
+/* Let the background show through the gaps around app content */
+body > .flex-1,
+body > .flex-1 > main {
+    background: transparent !important;
+}
+/* Use the same image on login, with a darker overlay for legibility */
+#login-screen,
+html.dark #login-screen {
+    background-image: linear-gradient(rgba(2, 8, 22, .60), rgba(2, 8, 22, .78)), url("./bg-dashboard.png") !important;
+    background-position: center center !important;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+}
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col md:flex-row transition-colors duration-200">
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <div class="inline-flex p-3 bg-brand-500/10 text-brand-500 rounded-xl mb-2"><i data-lucide="shield-check" class="w-8 h-8"></i></div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Korola Workshop P2H</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Silakan login untuk mengakses sistem monitoring</p>
+            </div>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Username</label>
+                    <input type="text" id="login_user" required placeholder="Username" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Password</label>
+                    <input type="password" id="login_pass" required placeholder="••••••••" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm">
+                </div>
+                <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl shadow-lg transition-all">Masuk ke Sistem</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside id="app-sidebar" class="hidden md:flex flex-col w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4 shrink-0">
+        <div class="flex items-center gap-3 px-2 py-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+            <div class="p-2 bg-brand-500/10 text-brand-500 rounded-xl"><i data-lucide="clipboard-check" class="w-6 h-6"></i></div>
+            <div>
+                <h1 class="font-bold text-sm leading-tight text-slate-900 dark:text-white">KOROLA WORKSHOP</h1>
+                <p id="user-role-badge" class="text-[10px] text-brand-500 font-bold uppercase tracking-wider">OPERATOR</p>
+            </div>
+        </div>
+        <nav class="flex-1 space-y-1">
+	
+<button onclick="navTo('kpi')" id="nav-kpi"
+    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+    <i data-lucide="chart-no-axes-combined" class="w-4 h-4"></i>
+    Dashboard KPI
+</button>
+
+            <button onclick="navTo('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-brand-500/10 text-brand-600 dark:text-brand-500"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard Matriks</button>
+            <button onclick="navTo('form')" id="nav-form" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="file-plus" class="w-4 h-4"></i> Input P2H Baru</button>
+            <button onclick="navTo('rekap')" id="nav-rekap" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="table" class="w-4 h-4"></i> Rekapitulasi Baris</button>
+<button onclick="navTo('unit-rekap')" id="nav-unit-rekap" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+    <i data-lucide="clipboard-list" class="w-4 h-4"></i> Rekap Laporan P2H per Unit
+</button>
+        </nav>
+        <div class="border-t border-slate-100 dark:border-slate-800 pt-4 space-y-2">
+            <button onclick="toggleTheme()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800">
+                <span class="flex items-center gap-2"><i data-lucide="moon" class="w-4 h-4 dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:inline"></i> Mode Tampilan</span>
+                <span class="text-[10px] font-bold uppercase" id="theme-text">Dark</span>
+            </button>
+            <button onclick="handleLogout()" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30"><i data-lucide="log-out" class="w-4 h-4"></i> Keluar</button>
+        </div>
+    </aside>
+
+    <!-- MOBILE NAVIGATION -->
+    <div id="mobile-nav-backdrop" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-30 md:hidden" onclick="toggleMobileNav(false)"></div>
+    <button id="mobile-nav-toggle" type="button" onclick="toggleMobileNav()" aria-label="Buka menu navigasi" class="md:hidden fixed top-3 left-3 z-50 flex items-center justify-center w-11 h-11 rounded-xl border border-sky-400/40 bg-[#0d203b] text-white shadow-lg shadow-blue-950/40">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
+
+    <!-- CONTENT -->
+    <div class="flex-1 flex flex-col min-w-0">
+        <main class="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
+
+
+<!-- DASHBOARD KPI PREMIUM -->
+<section id="sec-kpi" class="hidden space-y-5 kpi-premium">
+    <header class="kpi-hero">
+        <div class="kpi-hero-glow"></div>
+        <div class="relative z-10">
+            <p class="kpi-eyebrow">BINTANG TIMUR PLANTATION · KOROLA WORKSHOP</p>
+            <h1>P2H Monitoring Dashboard</h1>
+            <p class="kpi-subtitle">Monitoring kepatuhan pemeriksaan harian seluruh unit</p>
+        </div>
+        <div class="kpi-date-chip"><i data-lucide="calendar-days" class="w-4 h-4"></i><span id="kpi-date-label">Monitoring Bulan Ini</span></div>
+    </header>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 kpi-stat-grid">
+        <article class="kpi-stat-card stat-green"><div class="kpi-stat-icon"><i data-lucide="check-circle-2"></i></div><div class="kpi-stat-content"><p>Total P2H</p><h2 id="kpi-p2h">0%</h2><span>Kepatuhan pemeriksaan</span></div></article>
+        <article class="kpi-stat-card stat-blue"><div class="kpi-stat-icon"><i data-lucide="shield-check"></i></div><div class="kpi-stat-content"><p>Tidak P2H</p><h2 id="kpi-tidak-p2h">0%</h2><span>Belum ada laporan</span></div></article>
+        <article class="kpi-stat-card stat-amber"><div class="kpi-stat-icon"><i data-lucide="alert-triangle"></i></div><div class="kpi-stat-content"><p>Breakdown</p><h2 id="kpi-breakdown">0%</h2><span>Unit berstatus rusak</span></div></article>
+        <article class="kpi-stat-card stat-purple"><div class="kpi-stat-icon"><i data-lucide="truck"></i></div><div class="kpi-stat-content"><p>Standby</p><h2 id="kpi-standby">0%</h2><span>Unit tidak beroperasi</span></div></article>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 kpi-main-grid">
+        <section class="kpi-panel xl:col-span-7">
+            <div class="kpi-panel-heading"><div><span class="kpi-heading-icon"><i data-lucide="chart-no-axes-combined"></i></span><div><h3>Persentase P2H per Estate</h3><p>Perbandingan laporan P2H pada hari kerja</p></div></div><span class="kpi-live-dot">MONITORING</span></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 kpi-estate-grid">
+                <article class="kpi-estate-card"><div class="kpi-estate-top"><span class="kpi-estate-bullet"></span><h4>KRLE</h4><span class="kpi-estate-caption">P2H</span></div><div class="kpi-donut-wrap"><canvas id="chart-p2h-krle"></canvas><div class="kpi-donut-center"><strong id="pct-krle">0%</strong><span>KEPATUHAN</span></div></div></article>
+                <article class="kpi-estate-card"><div class="kpi-estate-top"><span class="kpi-estate-bullet"></span><h4>KRLW</h4><span class="kpi-estate-caption">P2H</span></div><div class="kpi-donut-wrap"><canvas id="chart-p2h-krlw"></canvas><div class="kpi-donut-center"><strong id="pct-krlw">0%</strong><span>KEPATUHAN</span></div></div></article>
+                <article class="kpi-estate-card"><div class="kpi-estate-top"><span class="kpi-estate-bullet"></span><h4>SWNE</h4><span class="kpi-estate-caption">P2H</span></div><div class="kpi-donut-wrap"><canvas id="chart-p2h-swne"></canvas><div class="kpi-donut-center"><strong id="pct-swne">0%</strong><span>KEPATUHAN</span></div></div></article>
+                <article class="kpi-estate-card"><div class="kpi-estate-top"><span class="kpi-estate-bullet"></span><h4>PPRE</h4><span class="kpi-estate-caption">P2H</span></div><div class="kpi-donut-wrap"><canvas id="chart-p2h-ppre"></canvas><div class="kpi-donut-center"><strong id="pct-ppre">0%</strong><span>KEPATUHAN</span></div></div></article>
+            </div>
+        </section>
+
+        <section class="kpi-panel xl:col-span-5 kpi-trend-panel">
+            <div class="kpi-panel-heading"><div><span class="kpi-heading-icon"><i data-lucide="activity"></i></span><div><h3>Tren Pelaporan Harian</h3><p>Persentase P2H per hari dalam bulan terpilih</p></div></div></div>
+            <div id="kpi-trend" class="kpi-trend-chart"><p class="text-sm">Grafik akan tampil setelah data dimuat.</p></div>
+            <div class="kpi-legend"><span><i class="legend-dot legend-gold"></i> Persentase P2H</span><span><i class="legend-dot legend-muted"></i> Hari kerja</span></div>
+            <div class="kpi-note"><i data-lucide="info" class="w-4 h-4"></i><span>Hari Minggu tidak dihitung dalam persentase kepatuhan.</span></div>
+        </section>
+    </div>
+</section>
+
+<!-- DASHBOARD MATRIKS -->
+            <section id="sec-dashboard" class="space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div>
+                        <h2 class="text-sm font-bold tracking-wider text-slate-400">BINTANG TIMUR PLANTATION</h2>
+                        <h1 class="text-xl font-extrabold text-slate-900 dark:text-white">KOROLA WORKSHOP - LAPORAN P2H</h1>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-semibold">PILIH ESTATE</label>
+                            <select id="filter-estate" onchange="renderMatrixDashboard()" class="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-brand-500">
+                                <option value="SWNE">SWNE</option>
+                                <option value="KRLE">KRLE</option>
+                                <option value="KRLW">KRLW</option>
+                                <option value="PRPE">PRPE</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-semibold">FILTER UNIT</label>
+                            <input id="filter-unit" type="text" list="dashboard-unit-options" oninput="renderMatrixDashboard()" placeholder="Ketik nama unit..." autocomplete="off" class="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 min-w-[180px]">
+                            <datalist id="dashboard-unit-options"></datalist>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 font-semibold">BULAN / TAHUN</label>
+                            <input type="month" id="filter-month" onchange="renderMatrixDashboard()" class="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                    <div class="xl:col-span-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm overflow-x-auto">
+                        <div class="min-w-[800px]">
+                            <table class="matrix-table w-full border-collapse">
+                                <thead id="matrix-head" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"></thead>
+                                <tbody id="matrix-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div id="operator-unit-card" class="hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-2">Operator Unit Terpilih</h3>
+                            <div id="operator-unit-name" class="text-sm font-bold text-brand-500">-</div>
+                            <div id="operator-unit-equipment" class="text-[11px] text-slate-400">-</div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-2">Keterangan Status</h3>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded bg-y text-white font-bold w-6 text-center">Y</span> <span>Melakukan P2H</span></div>
+                                <div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-500 font-bold w-6 text-center">T</span> <span>Tidak Melakukan P2H</span></div>
+                                <div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded bg-b text-white font-bold w-6 text-center">B</span> <span>Breakdown (Rusak)</span></div>
+                                <div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded bg-s text-white font-bold w-6 text-center">S</span> <span>Stand By ("No Operator")</span></div>
+                                <div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded bg-l text-white font-bold w-6 text-center">L</span> <span>Libur / Minggu</span></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm text-center">
+                            <div class="bg-sky-500 text-white py-2 text-xs font-bold uppercase tracking-wider">Laporan Scheduler</div>
+                            <div class="p-6">
+                                <h3 class="text-4xl font-extrabold text-sky-500" id="scheduler-percentage">0%</h3>
+                                <p class="text-[10px] text-slate-400 mt-1">Tingkat Kepatuhan P2H Bulan Ini</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FORM INPUT -->
+            <section id="sec-form" class="hidden max-w-2xl mx-auto space-y-5">
+                <form id="p2h-form" onsubmit="saveFormP2H(event)" class="space-y-4">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-4">
+                        <h3 class="text-xs font-bold text-brand-500 uppercase tracking-wider flex items-center gap-2"><i data-lucide="user-check" class="w-4 h-4"></i> Form Input P2H Harian</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Pilih Equipment (Unit)</label>
+                                <input id="equipment-select" type="text" list="input-unit-options" oninput="onEquipmentChange()" required placeholder="Ketik atau pilih nama unit..." autocomplete="off" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs">
+                                <datalist id="input-unit-options"></datalist>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Estate (Otomatis)</label>
+                                <input type="text" id="estate-input" readonly class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-brand-500" placeholder="Pilih unit dulu...">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Nama Operator</label>
+                                <input type="text" id="operator-input" readonly class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs" placeholder="Otomatis terisi...">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Jadwal Service Bulan Ini</label>
+                                <input type="text" id="jadwal-service-input" readonly class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-amber-500" placeholder="-">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Status P2H</label>
+                                <select id="p2h_status_input" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-brand-500">
+                                    <option value="Y">Y - Melakukan P2H</option>
+                                    <option value="S">S - StandBy (No Operator)</option>
+                                    <option value="B">B - Breakdown (Rusak)</option>
+                                    <option value="T">T - Tidak Melakukan P2H</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Tanggal P2H</label>
+                            <input type="date" id="input-tanggal" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        </div>
+                    </div>
+	
+                    <!-- CHECKLIST TAMBAHAN P2H: Baik / Rusak -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-4">
+                        <h3 class="text-xs font-bold text-brand-500 uppercase tracking-wider">
+                        <div id="checklist-p2h-tambahan" class="space-y-5">
+                            <div>
+                                <h4 class="font-bold text-sm mb-3">Visual Inspection</h4>
+                                <div class="space-y-3">
+                                    <div class="p2h-row"><label for="p2h-vis-1" class="p2h-item-name">Keretakan</label><div class="p2h-status-wrap"><select id="p2h-vis-1" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Visual Inspection - Keretakan" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-vis-1" placeholder="Contoh: retak pada rangka, kaca, atau komponen" aria-label="Keterangan Keretakan"></div>
+                                    <div class="p2h-row"><label for="p2h-vis-2" class="p2h-item-name">Kebocoran</label><div class="p2h-status-wrap"><select id="p2h-vis-2" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Visual Inspection - Kebocoran" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-vis-2" placeholder="Contoh: oli, solar, coolant, atau minyak hidrolik bocor" aria-label="Keterangan Kebocoran"></div>
+                                    <div class="p2h-row"><label for="p2h-vis-3" class="p2h-item-name">Kelonggaran</label><div class="p2h-status-wrap"><select id="p2h-vis-3" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Visual Inspection - Kelonggaran" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-vis-3" placeholder="Contoh: baut, sambungan, atau komponen longgar" aria-label="Keterangan Kelonggaran"></div>
+                                    <div class="p2h-row"><label for="p2h-vis-4" class="p2h-item-name">Keausan</label><div class="p2h-status-wrap"><select id="p2h-vis-4" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Visual Inspection - Keausan" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-vis-4" placeholder="Contoh: ban, belt, selang, atau komponen aus" aria-label="Keterangan Keausan"></div>
+                                    <div class="p2h-row"><label for="p2h-vis-5" class="p2h-item-name">Kekurangan</label><div class="p2h-status-wrap"><select id="p2h-vis-5" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Visual Inspection - Kekurangan" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-vis-5" placeholder="Contoh: komponen atau perlengkapan tidak lengkap" aria-label="Keterangan Kekurangan"></div>
+                                    <div class="p2h-row"><label for="p2h-vis-6" class="p2h-item-name">Kelengkapan APAR</label><div class="p2h-status-wrap"><select id="p2h-vis-6" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Visual Inspection - Kelengkapan APAR" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-vis-6" placeholder="Contoh: APAR tidak ada, rusak, atau kedaluwarsa" aria-label="Keterangan Kelengkapan APAR"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm mb-3">Check Level Cairan</h4>
+                                <div class="space-y-3">
+                                    <div class="p2h-row"><label for="p2h-cair-1" class="p2h-item-name">Engine Oil Level</label><div class="p2h-status-wrap"><select id="p2h-cair-1" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Engine Oil Level" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-cair-1" placeholder="Contoh: level oli mesin kurang atau berlebih" aria-label="Keterangan Engine Oil Level"></div>
+                                    <div class="p2h-row"><label for="p2h-cair-2" class="p2h-item-name">Hyd Oil Level</label><div class="p2h-status-wrap"><select id="p2h-cair-2" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Hyd Oil Level" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-cair-2" placeholder="Contoh: level oli hidrolik kurang atau kotor" aria-label="Keterangan Hyd Oil Level"></div>
+                                    <div class="p2h-row"><label for="p2h-cair-3" class="p2h-item-name">Check Radiator</label><div class="p2h-status-wrap"><select id="p2h-cair-3" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Check Radiator" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-cair-3" placeholder="Contoh: coolant kurang atau radiator bocor" aria-label="Keterangan Check Radiator"></div>
+                                    <div class="p2h-row"><label for="p2h-cair-4" class="p2h-item-name">Trans Oil Level</label><div class="p2h-status-wrap"><select id="p2h-cair-4" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Trans Oil Level" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-cair-4" placeholder="Contoh: oli transmisi kurang atau berubah warna" aria-label="Keterangan Trans Oil Level"></div>
+                                    <div class="p2h-row"><label for="p2h-cair-5" class="p2h-item-name">Fuel Level</label><div class="p2h-status-wrap"><select id="p2h-cair-5" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Fuel Level" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-cair-5" placeholder="Contoh: bahan bakar kurang untuk operasi" aria-label="Keterangan Fuel Level"></div>
+                                    <div class="p2h-row"><label for="p2h-cair-6" class="p2h-item-name">V-belt</label><div class="p2h-status-wrap"><select id="p2h-cair-6" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="V-belt" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-cair-6" placeholder="Contoh: belt retak, kendor, atau aus" aria-label="Keterangan V-belt"></div>
+                                    <div class="p2h-row"><label for="p2h-cair-7" class="p2h-item-name">Lain-lain</label><div class="p2h-status-wrap"><select id="p2h-cair-7" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Check Level Cairan - Lain-lain" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-cair-7" placeholder="Tuliskan temuan lain jika ada" aria-label="Keterangan Lain-lain"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm mb-3">Check Start</h4>
+                                <div class="space-y-3">
+                                    <div class="p2h-row"><label for="p2h-start-1" class="p2h-item-name">Kondisi Panel</label><div class="p2h-status-wrap"><select id="p2h-start-1" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Kondisi Panel" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-start-1" placeholder="Contoh: indikator mati atau lampu warning menyala" aria-label="Keterangan Kondisi Panel"></div>
+                                    <div class="p2h-row"><label for="p2h-start-2" class="p2h-item-name">Brake System</label><div class="p2h-status-wrap"><select id="p2h-start-2" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Brake System" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-start-2" placeholder="Contoh: rem kurang pakem atau ada kebocoran" aria-label="Keterangan Brake System"></div>
+                                    <div class="p2h-row"><label for="p2h-start-3" class="p2h-item-name">Steering System</label><div class="p2h-status-wrap"><select id="p2h-start-3" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Steering System" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-start-3" placeholder="Contoh: kemudi berat atau terlalu longgar" aria-label="Keterangan Steering System"></div>
+                                    <div class="p2h-row"><label for="p2h-start-4" class="p2h-item-name">Trans System</label><div class="p2h-status-wrap"><select id="p2h-start-4" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Trans System" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-start-4" placeholder="Contoh: perpindahan gigi bermasalah" aria-label="Keterangan Trans System"></div>
+                                    <div class="p2h-row"><label for="p2h-start-5" class="p2h-item-name">Hydraulic System</label><div class="p2h-status-wrap"><select id="p2h-start-5" class="p2h-kondisi status-box border rounded-lg p-2 text-xs font-bold" data-item="Hydraulic System" required><option value="">Pilih kondisi</option><option>Baik</option><option>Rusak</option></select></div><input type="text" class="p2h-keterangan" data-for="p2h-start-5" placeholder="Contoh: attachment lambat atau hidrolik bocor" aria-label="Keterangan Hydraulic System"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- AKHIR CHECKLIST TAMBAHAN -->
+
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-2">
+                        <h3 class="text-xs font-bold text-brand-500 uppercase tracking-wider flex items-center gap-2"><i data-lucide="message-square" class="w-4 h-4"></i> Hasil Temuan P2H (Catatan)</h3>
+                        <textarea id="catatan_temu" rows="2" placeholder="Catatan hasil inspeksi atau temuan kerusakan..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs"></textarea>
+                    </div>
+
+
+
+
+                    <button type="submit" id="btn-submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i> Kirim Laporan P2H
+                    </button>
+                </form>
+            </section>
+
+            <!-- REKAPITULASI -->
+            <section id="sec-rekap" class="hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Rekapitulasi Data Baris</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Format 5 Kolom (Tanggal, Estate, Equipment, P2H, Hasil Temuan)</p>
+                    </div>
+                    <button id="btn-export-excel" onclick="exportToExcel()" class="hidden px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg transition-all">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Export ke Excel (.xlsx)
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead class="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase font-bold text-[11px]">
+                                <tr>
+                                    <th class="p-3.5">Tanggal</th>
+                                    <th class="p-3.5">Estate</th>
+                                    <th class="p-3.5">Equipment</th>
+                                    <th class="p-3.5">P2H Status</th>
+                                    <th class="p-3.5">Hasil Temuan P2H</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rekap-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                                <tr><td colspan="5" class="p-4 text-center text-slate-400">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- REKAP LAPORAN P2H PER UNIT -->
+            <section id="sec-unit-rekap" class="hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Rekap Laporan P2H</h2>
+                        <p id="unit-rekap-title" class="text-xs text-slate-500 dark:text-slate-400">Pilih unit dari Dashboard</p>
+                    </div>
+                    <button onclick="navTo('dashboard')" class="px-4 py-2.5 bg-slate-200 dark:bg-slate-800 rounded-xl text-xs font-bold">
+                        Kembali ke Dashboard
+                    </button>
+                </div>
+
+                <div id="unit-detail-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                    <h3 class="p-4 font-bold text-slate-900 dark:text-white">Riwayat P2H dan Foto Temuan</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase">
+                                <tr>
+                                    <th class="p-3">Tanggal</th>
+                                    <th class="p-3">P2H Status</th>
+                                    <th class="p-3">Hasil Temuan</th>
+                                    <th class="p-3">Foto</th>
+                                </tr>
+                            </thead>
+                            <tbody id="unit-rekap-table-body">
+                                <tr>
+                                    <td colspan="4" class="p-4 text-center text-slate-400">Pilih unit dari Dashboard.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const SCRIPT_URL = "/api";
+
+        let MASTER_DATA = [];
+	let DASHBOARD_VISIBLE_UNITS = [];
+	let selectedUnitForRekap = '';
+
+        
+function getTodayLocalDate() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+const today = getTodayLocalDate();
+document.getElementById('filter-month').value = today.slice(0, 7);
+
+const tanggalP2H = document.getElementById('input-tanggal');
+tanggalP2H.value = today;
+
+
+
+        async function loadMasterUnits() {
+    try {
+        const token = sessionStorage.getItem('session_token');
+
+        if (!token) {
+            alert('Sesi login berakhir. Silakan login kembali.');
+            return;
+        }
+
+        const res = await fetch(
+            `${SCRIPT_URL}?action=getMaster&token=${encodeURIComponent(token)}`
+        );
+
+        const result = await res.json();
+
+        if (!Array.isArray(result)) {
+            alert(result.message || 'Gagal memuat Master Unit.');
+            return;
+        }
+
+        MASTER_DATA = result;
+
+        const inputOptions = document.getElementById('input-unit-options');
+
+        inputOptions.innerHTML = MASTER_DATA.map(item =>
+            `<option value="${String(item.equipment || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">${String(item.estate || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}</option>`
+        ).join('');
+
+        refreshDashboardUnitOptions();
+
+    } catch (err) {
+        console.error('Gagal memuat Master Unit', err);
+        alert('Gagal terhubung ke server saat memuat Master Unit.');
+    }
+}
+
+        function onEquipmentChange() {
+            const eqVal = document.getElementById('equipment-select').value.trim();
+            const found = MASTER_DATA.find(x => String(x.equipment || '').trim().toLowerCase() === eqVal.toLowerCase());
+            document.getElementById('estate-input').value = found ? (found.estate || '') : '';
+            document.getElementById('operator-input').value = found ? (found.operator || '-') : '';
+            document.getElementById('jadwal-service-input').value = found ? (found.jadwal_service || '-') : '';
+        }
+
+        function refreshDashboardUnitOptions() {
+            const estate = document.getElementById('filter-estate').value;
+            const list = document.getElementById('dashboard-unit-options');
+            if (!list) return;
+            const units = MASTER_DATA.filter(m => String(m.estate || '').trim().toUpperCase() === String(estate || '').trim().toUpperCase())
+                .sort((a,b) => String(a.equipment || '').localeCompare(String(b.equipment || '')));
+            list.innerHTML = units.map(m => `<option value="${String(m.equipment || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"></option>`).join('');
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeText = document.getElementById('theme-text');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                themeText.innerText = 'Light';
+            } else {
+                html.classList.add('dark');
+                themeText.innerText = 'Dark';
+            }
+        }
+
+        let currentUser = null;
+
+        
+async function handleLogin(e) {
+    e.preventDefault();
+
+    const u = document.getElementById('login_user').value.trim();
+    const p = document.getElementById('login_pass').value;
+
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: new URLSearchParams({
+                action: 'login',
+                username: u,
+                password: p
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.status !== 'success') {
+            alert(result.message || 'Username atau password salah.');
+            return;
+        }
+
+        const role = String(result.user.role || '').trim().toUpperCase();
+
+        if (!['ADMIN', 'PENGAWAS', 'OPERATOR'].includes(role)) {
+            alert('Role akun tidak valid. Hubungi Admin.');
+            return;
+        }
+
+        if (!result.token) {
+            alert('Token sesi tidak diterima. Periksa konfigurasi backend.');
+            return;
+        }
+
+// Simpan token sesi
+sessionStorage.setItem('session_token', result.token);
+
+currentUser = {
+    username: result.user.username,
+    nama: result.user.nama,
+    role: role
+};
+
+sessionStorage.setItem('user', JSON.stringify(currentUser));
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('app-sidebar').classList.remove('hidden');
+        document.getElementById('user-role-badge').innerText = role;
+
+        document.getElementById('nav-dashboard').classList.remove('hidden');
+        document.getElementById('nav-form').classList.remove('hidden');
+
+        document.getElementById('nav-rekap').classList.toggle(
+            'hidden',
+            role === 'OPERATOR'
+        );
+
+        document.getElementById('btn-export-excel').classList.toggle(
+            'hidden',
+            role !== 'ADMIN'
+        );
+
+        await loadMasterUnits();
+        navTo('dashboard');
+
+    } catch (error) {
+        console.error(error);
+        alert('Login gagal terhubung ke server. Periksa konfigurasi Apps Script.');
+    }
+}
+        function handleLogout() {
+            currentUser = null;
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('app-sidebar').classList.add('hidden');
+        }
+
+        
+
+
+
+function toggleMobileNav(force) {
+    const shouldOpen = typeof force === 'boolean'
+        ? force
+        : !document.body.classList.contains('mobile-nav-open');
+    document.body.classList.toggle('mobile-nav-open', shouldOpen);
+    const button = document.getElementById('mobile-nav-toggle');
+    if (button) {
+        button.innerHTML = shouldOpen
+            ? '<i data-lucide="x" class="w-5 h-5"></i>'
+            : '<i data-lucide="menu" class="w-5 h-5"></i>';
+        if (window.lucide) window.lucide.createIcons();
+        button.setAttribute('aria-label', shouldOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi');
+    }
+}
+
+function navTo(screen) {
+    if (!currentUser) return;
+
+    const role = String(currentUser.role || '').trim().toUpperCase();
+
+    if (role === 'OPERATOR' && screen === 'rekap') {
+        alert('Akses ditolak. Rekapitulasi hanya untuk Admin dan Pengawas.');
+        return;
+    }
+
+    const menuDasar = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800";
+    const menuAktif = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-brand-500/10 text-brand-600 dark:text-brand-500";
+
+    ['dashboard', 'kpi', 'form', 'rekap', 'unit-rekap'].forEach(s => {
+        const section = document.getElementById(`sec-${s}`);
+        const nav = document.getElementById(`nav-${s}`);
+
+        if (section) section.classList.add('hidden');
+        if (nav) nav.className = menuDasar;
+    });
+
+    const targetSection = document.getElementById(`sec-${screen}`);
+    const targetNav = document.getElementById(`nav-${screen}`);
+
+    if (!targetSection || !targetNav) {
+        console.error('Menu atau halaman tidak ditemukan:', screen);
+        return;
+    }
+
+    targetSection.classList.remove('hidden');
+    targetNav.className = menuAktif;
+    toggleMobileNav(false);
+
+    if (screen === 'dashboard') renderMatrixDashboard();
+    if (screen === 'kpi') renderKPIDashboard();
+    if (screen === 'rekap') fetchAndRenderRekap();
+
+    if (screen === 'unit-rekap') {
+        renderUnitRekap(selectedUnitForRekap);
+    }
+}
+
+function openUnitRekapByIndex(index) {
+    const unit = DASHBOARD_VISIBLE_UNITS[index];
+
+    if (!unit) {
+        alert('Unit tidak ditemukan.');
+        return;
+    }
+
+    selectedUnitForRekap = String(unit);
+    navTo('unit-rekap');
+}
+
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, function(c) {
+        return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[c];
+    });
+}
+
+async function renderUnitRekap(unitName) {
+    const title = document.getElementById('unit-rekap-title');
+    const details = document.getElementById('unit-detail-grid');
+    const tbody = document.getElementById('unit-rekap-table-body');
+
+    const unit = MASTER_DATA.find(function(m) {
+        return String(m.equipment || '').trim().toLowerCase() ===
+            String(unitName || '').trim().toLowerCase();
+    });
+
+    if (!unit) {
+        title.textContent = 'Unit tidak ditemukan';
+        details.innerHTML = '';
+        tbody.innerHTML =
+            '<tr><td colspan="4" class="p-4 text-center">Data unit tidak ditemukan.</td></tr>';
+        return;
+    }
+
+    title.textContent = 'Rekap Laporan P2H — ' + unit.equipment;
+
+
+const fields = [
+    ['Equipment', unit.equipment, 'truck'],
+    ['Nama Operator', unit.operator, 'user-round'],
+    ['Type Unit', unit.model, 'settings'],
+    ['Brand', unit.brand, 'factory'],
+    ['No Rangka', unit.nomor_rangka, 'fingerprint'],
+    ['No Mesin', unit.no_mesin, 'cog'],
+    ['Total HM/KM', unit.total_hm_km, 'gauge'],
+    ['FCR', unit.fcr, 'fuel']
+];
+
+details.innerHTML = fields.map(function(item) {
+    return `
+        <div class="group bg-white dark:bg-slate-900
+                    border border-slate-200 dark:border-slate-800
+                    rounded-2xl p-4 flex items-center gap-4
+                    shadow-sm hover:shadow-md hover:border-blue-400
+                    transition-all duration-200">
+            
+            <div class="shrink-0 w-12 h-12 rounded-xl
+                        bg-blue-50 dark:bg-blue-950/40
+                        text-blue-600 dark:text-blue-400
+                        flex items-center justify-center">
+                <i data-lucide="${item[2]}" class="w-6 h-6"></i>
+            </div>
+
+            <div class="min-w-0 flex-1">
+                <div class="text-[10px] uppercase tracking-wider
+                            font-semibold text-slate-400">
+                    ${escapeHtml(item[0])}
+                </div>
+                <div class="mt-1 text-sm font-bold
+                            text-slate-900 dark:text-white
+                            break-words">
+                    ${escapeHtml(item[1] || '-')}
+                </div>
+            </div>
+        </div>
+    `;
+}).join('');
+
+lucide.createIcons();
+
+    tbody.innerHTML =
+        '<tr><td colspan="4" class="p-4 text-center text-slate-400">Memuat data...</td></tr>';
+
+    const records = await fetchRecords();
+
+    const list = records.filter(function(r) {
+        return String(r.equipment || '').trim().toLowerCase() ===
+            String(unit.equipment || '').trim().toLowerCase();
+    }).sort(function(a, b) {
+        return String(b.tanggal || '').localeCompare(String(a.tanggal || ''));
+    });
+
+    if (!list.length) {
+        tbody.innerHTML =
+            '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada laporan P2H untuk unit ini.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = list.map(function(r) {
+        const url = String(r.foto_url || '');
+
+        return `
+            <tr class="border-t border-slate-200 dark:border-slate-800 align-top">
+                <td class="p-3">${escapeHtml(r.tanggal || '-')}</td>
+                <td class="p-3 font-bold text-brand-500">${escapeHtml(r.p2h_status || '-')}</td>
+                <td class="p-3 whitespace-normal">${escapeHtml(r.hasil_temuan || r.catatan || '-')}</td>
+                <td class="p-3">
+                    ${url
+                        ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="text-sky-500 underline">Lihat foto</a>`
+                        : '<span class="text-slate-400">Tidak ada foto</span>'}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+
+
+        
+
+
+async function saveFormP2H(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('btn-submit');
+    const token = sessionStorage.getItem('session_token');
+
+    if (!token) {
+        alert('Sesi login berakhir. Silakan login kembali.');
+        return;
+    }
+
+    const tanggalInput = document.getElementById('input-tanggal');
+    const today = getTodayLocalDate();
+    const userObj = JSON.parse(sessionStorage.getItem('user') || '{}');
+    const role = String(userObj.role || '').toUpperCase();
+
+    if (role !== 'ADMIN' && tanggalInput.value !== today) {
+        alert('P2H hanya dapat diinput untuk tanggal hari ini.');
+        tanggalInput.value = today;
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Menyimpan data...';
+
+    try {
+        const checklistTambahan = Array.from(
+            document.querySelectorAll('#checklist-p2h-tambahan .p2h-kondisi')
+        ).map(el => {
+            const note = document.querySelector(
+                `.p2h-keterangan[data-for="${el.id}"]`
+            )?.value.trim();
+
+            if (el.value !== 'Rusak') return '';
+            return note || `${el.dataset.item} rusak`;
+        }).filter(Boolean);
+
+        const checklistLama = Array.from(
+            document.querySelectorAll('input[name="p2h_item"]:checked')
+        ).map(el => el.value.trim()).filter(Boolean);
+
+        const catatanLama =
+            document.getElementById('catatan_temu').value.trim();
+
+        const bagianCatatan = [];
+        if (catatanLama) bagianCatatan.push(catatanLama);
+        bagianCatatan.push(...checklistLama, ...checklistTambahan);
+
+        const formData = new URLSearchParams({
+            action: 'saveP2H',
+            token: token,
+            tanggal: tanggalInput.value,
+            estate: document.getElementById('estate-input').value,
+            equipment: document.getElementById('equipment-select').value,
+            p2h_status: document.getElementById('p2h_status_input').value,
+            catatan: bagianCatatan.join(', ') || '-'
+        });
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.status !== 'success') {
+            throw new Error(
+                result.message || 'Gagal menyimpan laporan.'
+            );
+        }
+
+        alert('Laporan P2H berhasil disimpan.');
+
+        document.getElementById('p2h-form').reset();
+        document.getElementById('input-tanggal').value = today;
+        navTo('dashboard');
+
+    } catch (err) {
+        console.error(err);
+        alert('Pengiriman gagal: ' + (err.message || err));
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML =
+            '<i data-lucide="send" class="w-4 h-4"></i> Kirim Laporan P2H';
+        lucide.createIcons();
+    }
+}
+
+        // Membersihkan catatan lama dan baru agar hanya isi temuan yang tampil.
+        function bersihkanHasilTemuan(raw) {
+            if (!raw) return '-';
+            let t = String(raw).replace(/\s+/g, ' ').trim();
+            if (!t || t === '-') return '-';
+
+            // Ambil isi keterangan untuk item Rusak pada format data lama.
+            const itemNames = 'Visual Inspection\\s*-\\s*(?:Keretakan|Kebocoran|Kelonggaran|Keausan|Kekurangan|Kelengkapan APAR)|Engine Oil Level|Hyd Oil Level|Check Radiator|Trans Oil Level|Fuel Level|V-belt|Check Level Cairan\\s*-\\s*Lain-lain|Kondisi Panel|Brake System|Steering System|Trans System|Hydraulic System';
+            const extracted = [];
+            const re = new RegExp('(' + itemNames + ')\\s*:\\s*Rusak\\s*[—–-]\\s*Keterangan\\s*:\\s*(.*?)(?=(?:' + itemNames + ')\\s*:|$)', 'gi');
+            t = t.replace(re, function(full, item, detail) {
+                detail = detail.trim().replace(/[;,\s]+$/, '');
+                if (detail) extracted.push(detail);
+                else extracted.push(item.replace(/Visual Inspection\\s*-\\s*/i, '') + ' rusak');
+                return ' ';
+            });
+
+// Buang item checklist berstatus Baik.
+const baikRe = new RegExp('(?:' + itemNames + ')\\s*:\\s*Baik', 'gi');
+t = t.replace(baikRe, ' ');
+
+// Buang label dan judul teknis.
+t = t.replace(/Catatan operator\s*:/gi, ' ')
+     .replace(/Checklist lama\s*:/gi, ' ')
+     .replace(/CHECKLIST TAMBAHAN P2H\s*:?/gi, ' ')
+     .replace(/Visual Inspection\s*-\s*[^:]+:\s*Rusak\s*(?:[—–-]\s*Keterangan\s*:\s*)?/gi, ' ')
+     .replace(/(?:Engine Oil Level|Hyd Oil Level|Check Radiator|Trans Oil Level|Fuel Level|V-belt|Check Level Cairan\s*-\s*Lain-lain|Kondisi Panel|Brake System|Steering System|Trans System|Hydraulic System)\s*:\s*Rusak\s*(?:[—–-]\s*Keterangan\s*:\s*)?/gi, ' ');
+
+// Bersihkan label Baik/Rusak yang masih tertinggal.
+t = t.replace(/\b(?:Baik|Rusak)\b/gi, ' ')
+     .replace(/[—–]/g, ' ')
+     .replace(/\s+/g, ' ')
+     .replace(/\s*[,;]\s*/g, ', ')
+     .replace(/^(?:\s*[,;]\s*)+|(?:\s*[,;]\s*)+$/g, '')
+     .replace(/(?:,\s*){2,}/g, ', ')
+     .trim();
+
+            const parts = [];
+            if (t) parts.push(t);
+            extracted.forEach(v => { if (v && !parts.includes(v)) parts.push(v); });
+            // Hilangkan duplikasi dan pemisah berulang.
+            return [...new Set(parts.map(x => x.replace(/\s+/g, ' ').trim()).filter(Boolean))].join(', ') || 'Tidak ada temuan P2H';
+        }
+
+        async function fetchRecords() {
+    if (!SCRIPT_URL || SCRIPT_URL.includes("PASTE_URL")) {
+        console.error("URL Apps Script belum diisi.");
+        return [];
+    }
+
+    const token = sessionStorage.getItem('session_token');
+
+    if (!token) {
+        alert('Sesi login berakhir. Silakan login kembali.');
+        return [];
+    }
+
+    try {
+        const url = `${SCRIPT_URL}?token=${encodeURIComponent(token)}`;
+        const res = await fetch(url);
+        const text = await res.text();
+
+        if (text.trim().startsWith("<!DOCTYPE") || text.includes("<html")) {
+            console.error("Server mengembalikan halaman HTML, bukan data JSON.");
+            return [];
+        }
+
+        const result = JSON.parse(text);
+
+        if (!Array.isArray(result)) {
+            console.error("Gagal mengambil Rekapitulasi:", result.message || result);
+            return [];
+        }
+
+        return result;
+
+    } catch (err) {
+        console.error("Gagal mengambil data Rekapitulasi:", err);
+        return [];
+    }
+}
+        async function renderMatrixDashboard() {
+            if (MASTER_DATA.length === 0) {
+                await loadMasterUnits();
+            }
+
+            const records = await fetchRecords();
+            const selectedEstate = document.getElementById('filter-estate').value;
+            const selectedMonthStr = document.getElementById('filter-month').value;
+            
+            if (!selectedMonthStr) return;
+            const [year, month] = selectedMonthStr.split('-');
+            const daysInMonth = new Date(year, month, 0).getDate();
+            const now = new Date();
+            const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+            const estateMaster = MASTER_DATA.filter(m => String(m.estate).trim().toUpperCase() === String(selectedEstate).trim().toUpperCase());
+            const unitFilter = document.getElementById('filter-unit');
+            const typedUnit = unitFilter.value.trim();
+            const sortedMaster = [...estateMaster].sort((a, b) => String(a.equipment || '').localeCompare(String(b.equipment || '')));
+            refreshDashboardUnitOptions();
+            const exactMaster = estateMaster.find(m => String(m.equipment || '').trim().toLowerCase() === typedUnit.toLowerCase());
+            const selectedMaster = exactMaster || null;
+            const selectedUnit = selectedMaster ? String(selectedMaster.equipment) : '';
+            const matchedUnits = typedUnit
+                ? sortedMaster.filter(m => String(m.equipment || '').toLowerCase().includes(typedUnit.toLowerCase()))
+                : sortedMaster;
+            // Teks yang diketik langsung menyaring matriks; nama operator muncul saat satu unit dipilih tepat dari daftar.
+            
+            const operatorCard = document.getElementById('operator-unit-card');
+            if (selectedUnit && selectedMaster) {
+                operatorCard.classList.remove('hidden');
+                document.getElementById('operator-unit-name').textContent = selectedMaster.operator || 'Nama operator belum diisi di Master Unit';
+                document.getElementById('operator-unit-equipment').textContent = `${selectedMaster.equipment} • ${selectedMaster.estate}`;
+            } else {
+                operatorCard.classList.add('hidden');
+            }
+            const estateUnits = matchedUnits.map(m => m.equipment);
+	    DASHBOARD_VISIBLE_UNITS = estateUnits;
+
+            const thead = document.getElementById('matrix-head');
+            let headHTML = `<tr><th class="p-2 w-10">NO</th><th class="p-2 text-left min-w-[160px]">Internal Order</th>`;
+            for (let d = 1; d <= daysInMonth; d++) {
+                headHTML += `<th class="p-1 w-8 text-[10px]">${String(d).padStart(2, '0')}</th>`;
+            }
+            headHTML += `</tr>`;
+            thead.innerHTML = headHTML;
+
+            const tbody = document.getElementById('matrix-body');
+            tbody.innerHTML = '';
+
+            if (estateUnits.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${daysInMonth + 2}" class="p-4 text-center text-slate-400">Belum ada unit terdaftar untuk Estate ${selectedEstate} di Master Unit Sheet.</td></tr>`;
+                document.getElementById('scheduler-percentage').innerText = "0%";
+                return;
+            }
+
+            let totalExpectedChecks = estateUnits.length * daysInMonth;
+            let totalDoneChecks = 0;
+
+            estateUnits.forEach((unit, index) => {
+                let rowHTML = `<tr><td class="p-2 font-bold">${index + 1}</td>
+<td onclick="openUnitRekapByIndex(${index})" title="Klik untuk melihat rekap P2H unit ini" class="p-2 text-left font-semibold text-brand-500 cursor-pointer hover:underline">${unit}</td>
+`;
+                
+                for (let d = 1; d <= daysInMonth; d++) {
+                    let dayPad = String(d).padStart(2, '0');
+                    let dateKey = `${year}-${month}-${dayPad}`;
+                    let currentDateObj = new Date(year, month - 1, d);
+                    let isSunday = currentDateObj.getDay() === 0;
+
+                    let match = records.find(r => {
+                        let rawDate = String(r.tanggal || "").trim();
+                        let cleanDate = rawDate.length >= 10 ? rawDate.slice(0, 10) : rawDate;
+                        return cleanDate === dateKey && String(r.equipment).trim() === String(unit).trim();
+                    });
+
+                    let cellClass = "";
+                    let cellText = "";
+
+                    if (match) {
+                        cellText = match.p2h_status;
+                        if (match.p2h_status === 'Y') { 
+                            cellClass = "bg-y"; 
+                            totalDoneChecks++; 
+                        }
+                        else if (match.p2h_status === 'B') { cellClass = "bg-b"; }
+                        else if (match.p2h_status === 'S') { cellClass = "bg-s"; }
+                        else if (match.p2h_status === 'T') { cellClass = ""; cellText = "T"; }
+
+} else if (isSunday) {
+    cellClass = "bg-l";
+    cellText = "L";
+} else {
+    // Tidak ada laporan P2H: tampilkan T.
+    cellClass = "bg-t";
+    cellText = "T";
+}
+
+
+                    rowHTML += `<td class="p-1 h-8 w-8 ${cellClass}">${cellText}</td>`;
+                }
+                rowHTML += `</tr>`;
+                tbody.innerHTML += rowHTML;
+            });
+
+            let percentage = totalExpectedChecks > 0 ? Math.round((totalDoneChecks / totalExpectedChecks) * 100) : 0;
+            document.getElementById('scheduler-percentage').innerText = percentage + "%";
+        }
+
+
+let kpiCharts = {};
+
+async function renderKPIDashboard() {
+    if (MASTER_DATA.length === 0) await loadMasterUnits();
+
+    const records = await fetchRecords();
+
+    const monthInput = document.getElementById('filter-month');
+    const selectedMonth = monthInput.value ||
+        `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+
+    const [year, month] = selectedMonth.split('-').map(Number);
+    const dateLabel = document.getElementById('kpi-date-label');
+    if (dateLabel) dateLabel.textContent = new Date(year, month - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    const daysInMonth = new Date(year, month, 0).getDate();
+
+    const estates = [
+        { label: 'KRLE', codes: ['KRLE'] },
+        { label: 'KRLW', codes: ['KRLW'] },
+        { label: 'SWNE', codes: ['SWNE'] },
+        { label: 'PPRE', codes: ['PPRE', 'PRPE'] }
+    ];
+
+    const units = MASTER_DATA.filter(m =>
+        estates.some(e =>
+            e.codes.includes(String(m.estate || '').trim().toUpperCase())
+        )
+    );
+
+    const unitMap = new Map();
+    units.forEach(u => {
+        unitMap.set(
+            `${String(u.estate).trim().toUpperCase()}|${String(u.equipment).trim()}`,
+            u
+        );
+    });
+
+    function getStatus(unit, dateKey) {
+        const match = records.find(r => {
+            const rawDate = String(r.tanggal || '').trim().slice(0, 10);
+            return rawDate === dateKey &&
+                String(r.equipment || '').trim() === String(unit.equipment || '').trim();
+        });
+
+        if (!match) return 'T';
+
+        const status = String(match.p2h_status || '').trim().toUpperCase();
+        return ['Y', 'T', 'B', 'S'].includes(status) ? status : 'T';
+    }
+
+    const totals = { Y: 0, T: 0, B: 0, S: 0 };
+    const estateTotals = {};
+    const dailyTotals = [];
+
+    estates.forEach(e => {
+        estateTotals[e.label] = { done: 0, expected: 0 };
+    });
+
+    for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(year, month - 1, d);
+        if (date.getDay() === 0) continue;
+
+        const dateKey =
+            `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+        let dailyExpected = 0;
+        let dailyDone = 0;
+
+        units.forEach(unit => {
+            const status = getStatus(unit, dateKey);
+            totals[status]++;
+            dailyExpected++;
+
+            const estateCode = String(unit.estate || '').trim().toUpperCase();
+            const estate = estates.find(e => e.codes.includes(estateCode));
+
+            if (estate) {
+                estateTotals[estate.label].expected++;
+                if (status === 'Y') estateTotals[estate.label].done++;
+            }
+
+            if (status === 'Y') dailyDone++;
+        });
+
+        dailyTotals.push({
+            day: String(d).padStart(2, '0'),
+            percent: dailyExpected
+                ? Math.round(dailyDone / dailyExpected * 100)
+                : 0
+        });
+    }
+
+    const total = Object.values(totals).reduce((a, b) => a + b, 0);
+
+    function setPercent(id, count) {
+        const el = document.getElementById(id);
+        if (el) el.textContent =
+            `${total ? Math.round(count / total * 100) : 0}%`;
+    }
+
+    setPercent('kpi-p2h', totals.Y);
+    setPercent('kpi-tidak-p2h', totals.T);
+    setPercent('kpi-breakdown', totals.B);
+    setPercent('kpi-standby', totals.S);
+
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js belum dimuat.');
+        return;
+    }
+
+    function drawDonut(chartId, percentId, percent) {
+        const canvas = document.getElementById(chartId);
+        if (!canvas) return;
+
+        if (kpiCharts[chartId]) kpiCharts[chartId].destroy();
+
+        const value = Math.max(0, Math.min(100, percent));
+
+        kpiCharts[chartId] = new Chart(canvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['P2H', 'Belum P2H'],
+                datasets: [{
+                    data: [value, 100 - value],
+                    backgroundColor: ['#13DDA0', '#263D59'],
+                    borderWidth: 0,
+                    hoverOffset: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '76%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: context => `${context.label}: ${context.raw}%`
+                        }
+                    }
+                }
+            }
+        });
+
+        const label = document.getElementById(percentId);
+        if (label) label.textContent = `${value}%`;
+    }
+
+    estates.forEach(e => {
+        const data = estateTotals[e.label];
+        const percent = data.expected
+            ? Math.round(data.done / data.expected * 100)
+            : 0;
+
+        const suffix = e.label.toLowerCase();
+        drawDonut(`chart-p2h-${suffix}`, `pct-${suffix}`, percent);
+    });
+
+    const trendContainer = document.getElementById('kpi-trend');
+
+    if (trendContainer) {
+        trendContainer.innerHTML =
+            '<div class="relative h-64"><canvas id="chart-kpi-trend"></canvas></div>';
+
+        if (kpiCharts['chart-kpi-trend']) {
+            kpiCharts['chart-kpi-trend'].destroy();
+        }
+
+        kpiCharts['chart-kpi-trend'] = new Chart(
+            document.getElementById('chart-kpi-trend'),
+            {
+                type: 'line',
+                data: {
+                    labels: dailyTotals.map(d => d.day),
+                    datasets: [{
+                        label: 'Persentase P2H',
+                        data: dailyTotals.map(d => d.percent),
+                        borderColor: '#13DDA0',
+                        backgroundColor: 'rgba(19,221,160,0.15)',
+                        pointBackgroundColor: '#13DDA0',
+                        pointBorderColor: '#e8fff7',
+                        pointRadius: 3,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { color: '#91A9C6', callback: value => `${value}%` },
+                            grid: { color: 'rgba(89,123,160,0.18)' }
+                        }
+                    },
+                    plugins: { legend: { labels: { color: '#C5D5E9', boxWidth: 10, usePointStyle: true } } }
+                }
+            }
+        );
+    }
+    if (window.lucide) lucide.createIcons();
+}
+
+
+        // FUNGSI REKAPITULASI YANG SEBELUMNYA HILANG KINI SUDAH TERPASANG:
+        async function fetchAndRenderRekap() {
+            const tbody = document.getElementById('rekap-table-body');
+            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">⏳ Sedang memuat data...</td></tr>`;
+
+            const records = await fetchRecords();
+            tbody.innerHTML = '';
+
+            if (!records || records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data P2H atau gagal memuat.</td></tr>`;
+                return;
+            }
+
+            records.forEach(r => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="p-3.5 font-mono">${String(r.tanggal || '').slice(0, 10)}</td>
+                        <td class="p-3.5 font-bold">${r.estate || '-'}</td>
+                        <td class="p-3.5 font-bold text-slate-900 dark:text-white">${r.equipment || '-'}</td>
+                        <td class="p-3.5 font-bold text-brand-500">${r.p2h_status || '-'}</td>
+                        <td class="p-3.5 text-slate-400">${bersihkanHasilTemuan(r.hasil_temuan || r.catatan || '-')}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function exportToExcel() {
+            const records = await fetchRecords();
+            if (records.length === 0) return alert('Tidak ada data!');
+
+            const wsData = records.map(r => ({
+                "Tanggal": String(r.tanggal).slice(0, 10),
+                "Estate": r.estate,
+                "Equipment": r.equipment,
+                "P2H": r.p2h_status,
+                "Hasil Temuan P2H": bersihkanHasilTemuan(r.hasil_temuan || r.catatan || '-')
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(wsData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan P2H Bulanan");
+            XLSX.writeFile(workbook, `Korola_Workshop_P2H_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+    </script>
+
+<script>
+document.addEventListener('change', function(e) {
+  if (!e.target.matches('#checklist-p2h-tambahan .p2h-kondisi')) return;
+  const el=e.target;
+  el.classList.toggle('status-baik', el.value === 'Baik');
+  el.classList.toggle('status-rusak', el.value === 'Rusak');
+  const note=document.querySelector(`.p2h-keterangan[data-for="${el.id}"]`);
+  if(note){ note.required = el.value === 'Rusak'; note.placeholder = el.value === 'Rusak' ? 'Wajib: jelaskan kerusakan...' : note.dataset.example || note.placeholder; }
+});
+</script>
+
+</body>
+</html>
