@@ -748,7 +748,7 @@ body > .flex-1 > main {
     body > .flex-1 { width: 100%; height: 100dvh; min-height: 0; overflow: hidden; }
     body > .flex-1 > main {
         height: 100%; min-height: 0; overflow-y: auto !important; overflow-x: hidden;
-        display: block; padding: 66px 12px 18px !important; -webkit-overflow-scrolling: touch;
+        display: block; padding: 12px 12px 18px !important; -webkit-overflow-scrolling: touch;
     }
     #app-sidebar {
         display: flex !important; position: fixed !important; z-index: 40;
@@ -798,6 +798,11 @@ body > .flex-1 > main {
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col md:flex-row transition-colors duration-200">
