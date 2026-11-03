@@ -783,38 +783,6 @@ body > .flex-1 > main {
     #sec-kpi .kpi-estate-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
-
-/* USER BACKGROUND IMAGE — Korola Workshop */
-body {
-    background-color: #061329 !important;
-    background-image: linear-gradient(rgba(3, 10, 25, .48), rgba(3, 10, 25, .68)), url("./bg-dashboard.png") !important;
-    background-position: center center !important;
-    background-repeat: no-repeat !important;
-    background-size: cover !important;
-    background-attachment: fixed !important;
-}
-html.dark body {
-    background-color: #061329 !important;
-    background-image: linear-gradient(rgba(3, 10, 25, .48), rgba(3, 10, 25, .68)), url("./bg-dashboard.png") !important;
-    background-position: center center !important;
-    background-repeat: no-repeat !important;
-    background-size: cover !important;
-    background-attachment: fixed !important;
-}
-/* Let the background show through the gaps around app content */
-body > .flex-1,
-body > .flex-1 > main {
-    background: transparent !important;
-}
-/* Use the same image on login, with a darker overlay for legibility */
-#login-screen,
-html.dark #login-screen {
-    background-image: linear-gradient(rgba(2, 8, 22, .60), rgba(2, 8, 22, .78)), url("./bg-dashboard.png") !important;
-    background-position: center center !important;
-    background-size: cover !important;
-    background-repeat: no-repeat !important;
-}
-
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1088,7 +1056,7 @@ html.dark #login-screen {
 
 
                     <button type="submit" id="btn-submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
-                        <i data-lucide="send" class="w-4 h-4"></i> Kirim Laporan P2H
+                        <i data-lucide="send" class="w-4 h-4"></i> Kirim Laporan ke Google Sheets
                     </button>
                 </form>
             </section>
@@ -1168,7 +1136,7 @@ html.dark #login-screen {
     <script>
         lucide.createIcons();
 
-        const SCRIPT_URL = "/api";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwvqiEsZhux5hWmNFAnVBU71nH9f2Pjty6JO3wZ8VkTTufspJ_FBMUt-tnjOfgW1gUE/exec";
 
         let MASTER_DATA = [];
 	let DASHBOARD_VISIBLE_UNITS = [];
@@ -1290,7 +1258,7 @@ async function handleLogin(e) {
         }
 
         if (!result.token) {
-            alert('Token sesi tidak diterima. Periksa konfigurasi backend.');
+            alert('Token sesi tidak diterima. Periksa versi Apps Script.');
             return;
         }
 
@@ -1608,7 +1576,7 @@ async function saveFormP2H(e) {
     } finally {
         btn.disabled = false;
         btn.innerHTML =
-            '<i data-lucide="send" class="w-4 h-4"></i> Kirim Laporan P2H';
+            '<i data-lucide="send" class="w-4 h-4"></i> Kirim Laporan ke Google Sheets';
         lucide.createIcons();
     }
 }
@@ -1676,7 +1644,7 @@ t = t.replace(/\b(?:Baik|Rusak)\b/gi, ' ')
         const text = await res.text();
 
         if (text.trim().startsWith("<!DOCTYPE") || text.includes("<html")) {
-            console.error("Server mengembalikan halaman HTML, bukan data JSON.");
+            console.error("Apps Script mengembalikan halaman HTML.");
             return [];
         }
 
