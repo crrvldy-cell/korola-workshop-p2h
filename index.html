@@ -38,8 +38,6 @@
         .bg-l { background: repeating-linear-gradient(45deg, #7f1d1d, #7f1d1d 5px, #991b1b 5px, #991b1b 10px); color: white; font-weight: bold; }
     </style>
 
-
-
 <style>
 /* =====================================================
    KOROLA WORKSHOP — CORPORATE THEME
@@ -471,22 +469,22 @@ html.dark #sec-rekap .bg-white {
 }
 
 /* 11. LOGIN */
-#login-screen {
+#login-screen, #change-password-modal {
     background: radial-gradient(ellipse at top, #e1f4ee 0%, #f4f7fb 65%) !important;
 }
 
-#login-screen > div {
+#login-screen > div, #change-password-modal > div {
     background: var(--kw-panel) !important;
     color: var(--kw-text);
     border-color: var(--kw-border) !important;
     box-shadow: var(--kw-shadow);
 }
 
-html.dark #login-screen {
+html.dark #login-screen, html.dark #change-password-modal {
     background: radial-gradient(ellipse at top, #173b5b 0%, #071426 65%) !important;
 }
 
-html.dark #login-screen > div {
+html.dark #login-screen > div, html.dark #change-password-modal > div {
     background: var(--kw-panel) !important;
     border-color: var(--kw-border) !important;
 }
@@ -624,7 +622,6 @@ body > .flex-1 > main {
     }
 }
 
-
 /* PREMIUM THEME — DASHBOARD KPI */
 #sec-kpi {
     color: #F1F5F9;
@@ -678,7 +675,6 @@ body > .flex-1 > main {
 #sec-kpi [id^="pct-"] {
     color: #F0BD61 !important;
 }
-
 
 /* =====================================================
    PREMIUM DASHBOARD — inspired by Korola reference
@@ -740,7 +736,6 @@ body > .flex-1 > main {
 #app-sidebar nav button.bg-brand-500\/10 { background:linear-gradient(100deg,#0878f9,#0753c8)!important; color:#fff!important; box-shadow:0 0 0 1px rgba(75,166,255,.7),0 0 20px rgba(0,116,255,.35); }
 #app-sidebar nav button.bg-brand-500\/10 i { color:#fff!important; }
 @media (max-width: 768px) { .kpi-hero { align-items:flex-start; flex-direction:column; padding:22px; } .kpi-date-chip { align-self:flex-start; } .kpi-stat-card { min-height:108px; padding:15px; } .kpi-panel { padding:15px; } }
-
 
 /* MOBILE LAYOUT PATCH */
 @media (max-width: 767px) {
@@ -819,7 +814,45 @@ body > .flex-1 > main {
                     <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Password</label>
                     <input type="password" id="login_pass" required placeholder="••••••••" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm">
                 </div>
-                <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl shadow-lg transition-all">Masuk ke Sistem</button>
+                <button type="submit" id="btn-login" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                    Masuk ke Sistem
+                </button>
+                <div class="text-center pt-2">
+                    <button type="button" onclick="toggleChangePasswordModal(true)" class="text-xs text-brand-500 hover:underline font-semibold">Ganti Password?</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL GANTI PASSWORD -->
+    <div id="change-password-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <div class="inline-flex p-3 bg-brand-500/10 text-brand-500 rounded-xl mb-2"><i data-lucide="key-round" class="w-8 h-8"></i></div>
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Ganti Password</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Password baru akan tersimpan di Google Sheets</p>
+            </div>
+            <form onsubmit="handleChangePassword(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Username</label>
+                    <input type="text" id="cp_username" required placeholder="Username Anda" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Password Lama</label>
+                    <input type="password" id="cp_old_pass" required placeholder="Password saat ini" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Password Baru</label>
+                    <input type="password" id="cp_new_pass" required placeholder="Password baru" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Konfirmasi Password Baru</label>
+                    <input type="password" id="cp_confirm_pass" required placeholder="Ulangi password baru" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-xs">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="toggleChangePasswordModal(false)" class="w-1/2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-700 dark:text-slate-300 font-bold py-2.5 rounded-xl text-xs transition-all">Batal</button>
+                    <button type="submit" id="btn-cp-submit" class="w-1/2 bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg transition-all flex items-center justify-center gap-1">Simpan Password</button>
+                </div>
             </form>
         </div>
     </div>
@@ -866,7 +899,6 @@ body > .flex-1 > main {
     <!-- CONTENT -->
     <div class="flex-1 flex flex-col min-w-0">
         <main class="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
-
 
 <!-- DASHBOARD KPI PREMIUM -->
 <section id="sec-kpi" class="hidden space-y-5 kpi-premium">
@@ -1020,7 +1052,6 @@ body > .flex-1 > main {
 	
                     <!-- CHECKLIST TAMBAHAN P2H: Baik / Rusak -->
                     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-4">
-                        <h3 class="text-xs font-bold text-brand-500 uppercase tracking-wider">
                         <div id="checklist-p2h-tambahan" class="space-y-5">
                             <div>
                                 <h4 class="font-bold text-sm mb-3">Visual Inspection</h4>
@@ -1063,9 +1094,6 @@ body > .flex-1 > main {
                         <h3 class="text-xs font-bold text-brand-500 uppercase tracking-wider flex items-center gap-2"><i data-lucide="message-square" class="w-4 h-4"></i> Hasil Temuan P2H (Catatan)</h3>
                         <textarea id="catatan_temu" rows="2" placeholder="Catatan hasil inspeksi atau temuan kerusakan..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs"></textarea>
                     </div>
-
-
-
 
                     <button type="submit" id="btn-submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
                         <i data-lucide="send" class="w-4 h-4"></i> Kirim Laporan ke Google Sheets
@@ -1141,14 +1169,13 @@ body > .flex-1 > main {
                 </div>
             </section>
 
-
         </main>
     </div>
 
     <script>
         lucide.createIcons();
 
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyndZfEwBhcCwRT9jmJoCK-kZL-NO6npi9vaMp6hWA44NEUCyjTT1CoVzxxbzxvzrwz/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxs_v8A2yDLruUoWGaESo9VGp35iPShn2BELWy0Dkzom3wOCtrTJyLAFO1U2dpz4qzT/exec";
 
         let MASTER_DATA = [];
 	let DASHBOARD_VISIBLE_UNITS = [];
@@ -1168,8 +1195,6 @@ document.getElementById('filter-month').value = today.slice(0, 7);
 
 const tanggalP2H = document.getElementById('input-tanggal');
 tanggalP2H.value = today;
-
-
 
         async function loadMasterUnits() {
     try {
@@ -1238,12 +1263,16 @@ tanggalP2H.value = today;
 
         let currentUser = null;
 
-        
 async function handleLogin(e) {
     e.preventDefault();
 
+    const btnLogin = document.getElementById('btn-login');
     const u = document.getElementById('login_user').value.trim();
     const p = document.getElementById('login_pass').value;
+
+    // ANTI DOUBLE CLICK & TEKS LOADING
+    btnLogin.disabled = true;
+    btnLogin.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memuat data...`;
 
     try {
         const response = await fetch(SCRIPT_URL, {
@@ -1274,16 +1303,16 @@ async function handleLogin(e) {
             return;
         }
 
-// Simpan token sesi
-sessionStorage.setItem('session_token', result.token);
+        // Simpan token sesi
+        sessionStorage.setItem('session_token', result.token);
 
-currentUser = {
-    username: result.user.username,
-    nama: result.user.nama,
-    role: role
-};
+        currentUser = {
+            username: result.user.username,
+            nama: result.user.nama,
+            role: role
+        };
 
-sessionStorage.setItem('user', JSON.stringify(currentUser));
+        sessionStorage.setItem('user', JSON.stringify(currentUser));
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app-sidebar').classList.remove('hidden');
         document.getElementById('user-role-badge').innerText = role;
@@ -1306,18 +1335,84 @@ sessionStorage.setItem('user', JSON.stringify(currentUser));
 
     } catch (error) {
         console.error(error);
-        alert('Login gagal terhubung ke server. Periksa konfigurasi Apps Script.');
+        alert('Login gagal terhubung ke server. Periksa koneksi atau konfigurasi Apps Script.');
+    } finally {
+        btnLogin.disabled = false;
+        btnLogin.innerHTML = 'Masuk ke Sistem';
     }
 }
+
         function handleLogout() {
             currentUser = null;
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('app-sidebar').classList.add('hidden');
         }
 
-        
+        // FUNGSI GANTI PASSWORD MODAL & API
+        function toggleChangePasswordModal(show) {
+            const modal = document.getElementById('change-password-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
 
+        async function handleChangePassword(e) {
+            e.preventDefault();
 
+            const btnCP = document.getElementById('btn-cp-submit');
+            const u = document.getElementById('cp_username').value.trim();
+            const oldP = document.getElementById('cp_old_pass').value;
+            const newP = document.getElementById('cp_new_pass').value;
+            const confirmP = document.getElementById('cp_confirm_pass').value;
+
+            if (newP !== confirmP) {
+                alert('Konfirmasi password baru tidak cocok.');
+                return;
+            }
+
+            if (newP.length < 4) {
+                alert('Password baru minimal 4 karakter.');
+                return;
+            }
+
+            // ANTI DOUBLE CLICK & LOADING
+            btnCP.disabled = true;
+            btnCP.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses...`;
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: new URLSearchParams({
+                        action: 'changePassword',
+                        username: u,
+                        oldPassword: oldP,
+                        newPassword: newP
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status !== 'success') {
+                    alert(result.message || 'Gagal mengganti password.');
+                    return;
+                }
+
+                alert('Password berhasil diperbarui! Silakan login dengan password baru.');
+                toggleChangePasswordModal(false);
+                document.getElementById('cp_old_pass').value = '';
+                document.getElementById('cp_new_pass').value = '';
+                document.getElementById('cp_confirm_pass').value = '';
+
+            } catch (error) {
+                console.error(error);
+                alert('Gagal terhubung ke server saat memperbarui password.');
+            } finally {
+                btnCP.disabled = false;
+                btnCP.innerText = 'Simpan Password';
+            }
+        }
 
 function toggleMobileNav(force) {
     const shouldOpen = typeof force === 'boolean'
@@ -1420,7 +1515,6 @@ async function renderUnitRekap(unitName) {
 
     title.textContent = 'Rekap Laporan P2H — ' + unit.equipment;
 
-
 const fields = [
     ['Equipment', unit.equipment, 'truck'],
     ['Nama Operator', unit.operator, 'user-round'],
@@ -1500,11 +1594,6 @@ lucide.createIcons();
     }).join('');
 }
 
-
-
-        
-
-
 async function saveFormP2H(e) {
     e.preventDefault();
 
@@ -1528,7 +1617,7 @@ async function saveFormP2H(e) {
     }
 
     btn.disabled = true;
-    btn.textContent = 'Menyimpan data...';
+    btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Menyimpan data...`;
 
     try {
         const checklistTambahan = Array.from(
@@ -1772,7 +1861,6 @@ t = t.replace(/\b(?:Baik|Rusak)\b/gi, ' ')
     cellText = "T";
 }
 
-
                     rowHTML += `<td class="p-1 h-8 w-8 ${cellClass}">${cellText}</td>`;
                 }
                 rowHTML += `</tr>`;
@@ -1782,7 +1870,6 @@ t = t.replace(/\b(?:Baik|Rusak)\b/gi, ' ')
             let percentage = totalExpectedChecks > 0 ? Math.round((totalDoneChecks / totalExpectedChecks) * 100) : 0;
             document.getElementById('scheduler-percentage').innerText = percentage + "%";
         }
-
 
 let kpiCharts = {};
 
@@ -1989,8 +2076,6 @@ async function renderKPIDashboard() {
     if (window.lucide) lucide.createIcons();
 }
 
-
-        // FUNGSI REKAPITULASI YANG SEBELUMNYA HILANG KINI SUDAH TERPASANG:
         async function fetchAndRenderRekap() {
             const tbody = document.getElementById('rekap-table-body');
             tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">⏳ Sedang memuat data...</td></tr>`;
