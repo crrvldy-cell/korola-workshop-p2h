@@ -744,12 +744,36 @@ body > .flex-1 > main {
 
 /* MOBILE LAYOUT PATCH */
 @media (max-width: 767px) {
-    body { overflow: hidden !important; }
-    body > .flex-1 { width: 100%; height: 100dvh; min-height: 0; overflow: hidden; }
-    body > .flex-1 > main {
-        height: 100%; min-height: 0; overflow-y: auto !important; overflow-x: hidden;
-        display: block; padding: 12px 12px 18px !important; -webkit-overflow-scrolling: touch;
+    html {
+        background-color: #071426 !important;
     }
+    body {
+        overflow: hidden !important;
+        background-color: #071426 !important;
+    }
+    body > .flex-1 { 
+        width: 100%; 
+        height: 100dvh; 
+        min-height: 0; 
+        overflow: hidden; 
+        background-color: #071426 !important;
+    }
+    body > .flex-1 > main {
+        height: 100%; 
+        min-height: 0; 
+        overflow-y: auto !important; 
+        overflow-x: hidden;
+        display: block; 
+        /* Menyesuaikan padding atas dengan safe-area perangkat */
+        padding: calc(16px + env(safe-area-inset-top)) 12px 18px !important; 
+        -webkit-overflow-scrolling: touch;
+    }
+    #mobile-nav-toggle {
+        /* Menggeser tombol menu agar berada di bawah status bar / notch */
+        top: calc(12px + env(safe-area-inset-top)) !important;
+    }
+    /* ... sisa kode media query lainnya ... */
+}
     #app-sidebar {
         display: flex !important; position: fixed !important; z-index: 40;
         left: 0; top: 0; bottom: 0; width: min(82vw, 290px) !important;
