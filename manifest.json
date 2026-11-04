@@ -7,7 +7,7 @@
   "start_url": "/korola-workshop-p2h/index.html",
   "scope": "/korola-workshop-p2h/",
   "display": "standalone",
-  "orientation": "landscape",
+  "orientation": "potrait",
   "background_color": "#071426",
   "theme_color": "#071426",
   "icons": [
