@@ -1,13 +1,12 @@
-
 {
-  "id": "/korola-workshop-p2h/",
+  "id": "./",
   "name": "P2H KRLW Online",
   "short_name": "KrlwP2H",
   "description": "Monitoring System Fleet",
-  "start_url": "/korola-workshop-p2h/",
-  "scope": "/korola-workshop-p2h/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "orientation": "landscape",
+  "orientation": "portrait",
   "background_color": "#071426",
   "theme_color": "#071426",
   "icons": [
