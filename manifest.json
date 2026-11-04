@@ -1,19 +1,21 @@
+
 {
-  "id": "/korola-workshop-p2h/",
-  "name": "P2H KRLW Online",
-  "short_name": "KrlwP2H",
-  "description": "Monitoring System Fleet",
-  "start_url": "/korola-workshop-p2h/",
-  "scope": "/korola-workshop-p2h/",
-  "display": "standalone",
-  "orientation": "landscape",
-  "background_color": "#071426",
-  "theme_color": "#071426",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+  "id": "/korola-workshop-p2h/",
+  "name": "P2H KRLW Online",
+  "short_name": "KrlwP2H",
+  "description": "Monitoring System Fleet",
+  "start_url": "/korola-workshop-p2h/index.html",
+  "scope": "/korola-workshop-p2h/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#071426",
+  "theme_color": "#071426",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
 }
