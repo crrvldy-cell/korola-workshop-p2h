@@ -857,38 +857,53 @@ body > .flex-1 > main {
         </div>
     </div>
 
-    <!-- SIDEBAR -->
-    <aside id="app-sidebar" class="hidden md:flex flex-col w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4 shrink-0">
-        <div class="flex items-center gap-3 px-2 py-3 border-b border-slate-100 dark:border-slate-800 mb-4">
-            <div class="p-2 bg-brand-500/10 text-brand-500 rounded-xl"><i data-lucide="clipboard-check" class="w-6 h-6"></i></div>
-            <div>
-                <h1 class="font-bold text-sm leading-tight text-slate-900 dark:text-white">KOROLA WORKSHOP</h1>
-                <p id="user-role-badge" class="text-[10px] text-brand-500 font-bold uppercase tracking-wider">OPERATOR</p>
-            </div>
-        </div>
-        <nav class="flex-1 space-y-1">
-	
-<button onclick="navTo('kpi')" id="nav-kpi"
-    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-    <i data-lucide="chart-no-axes-combined" class="w-4 h-4"></i>
-    Dashboard KPI
-</button>
 
-            <button onclick="navTo('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-brand-500/10 text-brand-600 dark:text-brand-500"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard Matriks</button>
-            <button onclick="navTo('form')" id="nav-form" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="file-plus" class="w-4 h-4"></i> Input P2H Baru</button>
-            <button onclick="navTo('rekap')" id="nav-rekap" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="table" class="w-4 h-4"></i> Rekapitulasi Baris</button>
-<button onclick="navTo('unit-rekap')" id="nav-unit-rekap" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-    <i data-lucide="clipboard-list" class="w-4 h-4"></i> Rekap Laporan P2H per Unit
-</button>
-        </nav>
-        <div class="border-t border-slate-100 dark:border-slate-800 pt-4 space-y-2">
-            <button onclick="toggleTheme()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800">
-                <span class="flex items-center gap-2"><i data-lucide="moon" class="w-4 h-4 dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:inline"></i> Mode Tampilan</span>
-                <span class="text-[10px] font-bold uppercase" id="theme-text">Dark</span>
-            </button>
-            <button onclick="handleLogout()" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30"><i data-lucide="log-out" class="w-4 h-4"></i> Keluar</button>
+   <!-- SIDEBAR -->
+<aside id="app-sidebar" class="hidden md:flex flex-col w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4 shrink-0">
+    <!-- SIDEBAR HEADER (Profil & Sapaan User) -->
+    <div class="flex items-center gap-3 px-2 py-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+        <!-- Avatar Foto Profil / Inisial -->
+        <div id="sidebar-avatar" class="relative w-10 h-10 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold overflow-hidden border border-brand-500/30 shrink-0">
+            <span id="sidebar-avatar-text">U</span>
+            <img id="sidebar-avatar-img" src="" alt="Foto Profil" class="absolute inset-0 w-full h-full object-cover hidden">
         </div>
-    </aside>
+        <div class="min-w-0 flex-1">
+            <p class="text-[10px] text-slate-400 font-medium">Selamat datang,</p>
+            <h1 id="user-display-name" class="font-bold text-sm leading-tight text-slate-900 dark:text-white truncate">User</h1>
+            <p id="user-role-badge" class="text-[10px] text-brand-500 font-bold uppercase tracking-wider mt-0.5">OPERATOR</p>
+        </div>
+    </div>
+
+    <!-- NAVIGASI MENU -->
+    <nav class="flex-1 space-y-1">
+        <button onclick="navTo('kpi')" id="nav-kpi" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i data-lucide="chart-no-axes-combined" class="w-4 h-4"></i> Dashboard KPI
+        </button>
+        <button onclick="navTo('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-brand-500/10 text-brand-600 dark:text-brand-500">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard Matriks
+        </button>
+        <button onclick="navTo('form')" id="nav-form" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i data-lucide="file-plus" class="w-4 h-4"></i> Input P2H Baru
+        </button>
+        <button onclick="navTo('rekap')" id="nav-rekap" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i data-lucide="table" class="w-4 h-4"></i> Rekapitulasi Baris
+        </button>
+        <button onclick="navTo('unit-rekap')" id="nav-unit-rekap" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i data-lucide="clipboard-list" class="w-4 h-4"></i> Rekap Laporan P2H per Unit
+        </button>
+    </nav>
+
+    <!-- FOOTER SIDEBAR -->
+
+        <button onclick="toggleTheme()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800">
+            <span class="flex items-center gap-2"><i data-lucide="moon" class="w-4 h-4 dark:hidden"></i><i data-lucide="sun" class="w-4 h-4 hidden dark:inline"></i> Mode Tampilan</span>
+            <span class="text-[10px] font-bold uppercase" id="theme-text">Dark</span>
+        </button>
+        <button onclick="handleLogout()" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Keluar
+        </button>
+    </div>
+</aside>
 
     <!-- MOBILE NAVIGATION -->
     <div id="mobile-nav-backdrop" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-30 md:hidden" onclick="toggleMobileNav(false)"></div>
@@ -1175,7 +1190,7 @@ body > .flex-1 > main {
     <script>
         lucide.createIcons();
 
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxs_v8A2yDLruUoWGaESo9VGp35iPShn2BELWy0Dkzom3wOCtrTJyLAFO1U2dpz4qzT/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxEFv_CXRWX9JXwYF8szxatJ6xq0VvwTIy6VeWP-KM9q_h6dtt125dgKif5owDGhcv/exec";
 
         let MASTER_DATA = [];
 	let DASHBOARD_VISIBLE_UNITS = [];
@@ -2118,6 +2133,29 @@ async function renderKPIDashboard() {
             XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan P2H Bulanan");
             XLSX.writeFile(workbook, `Korola_Workshop_P2H_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
+
+
+// Fungsi pembantu untuk merender Nama Sapaan dan Foto Profil di Sidebar
+function applyUserSessionUI(user) {
+    currentUser = user;
+    document.getElementById('user-role-badge').innerText = user.role;
+    document.getElementById('user-display-name').innerText = user.nama || user.username;
+
+    // Render Avatar / Foto Profil
+    const avatarImg = document.getElementById('sidebar-avatar-img');
+    const avatarText = document.getElementById('sidebar-avatar-text');
+
+    if (user.foto_url) {
+        avatarImg.src = user.foto_url;
+        avatarImg.classList.remove('hidden');
+        avatarText.classList.add('hidden');
+    } else {
+        avatarImg.classList.add('hidden');
+        avatarText.classList.remove('hidden');
+        const initials = (user.nama || user.username).slice(0, 2).toUpperCase();
+        avatarText.innerText = initials;
+    }
+}
     </script>
 
 <script>
